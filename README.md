@@ -1,6 +1,3 @@
-![Passbook](http://cl.ly/JPjc/title_passbook.png)
-
-===============
 django-passbook
 ===============
 

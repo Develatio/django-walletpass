@@ -15,7 +15,11 @@ class Pass(models.Model):
         return self.serial_number
 
     class Meta:
-        unique_together = (('pass_type_identifier', 'serial_number'),)
+        verbose_name_plural = "passes"
+        unique_together = (
+            'pass_type_identifier',
+            'serial_number',
+        ),
 
 
 class Registration(models.Model):
@@ -24,7 +28,7 @@ class Registration(models.Model):
     """
     device_library_identifier = models.CharField(max_length=50)
     push_token = models.CharField(max_length=50)
-    pazz = models.ForeignKey(Pass)
+    pazz = models.ForeignKey(Pass, on_delete=models.CASCADE)
 
     def __unicode__(self):
         return self.device_library_identifier
