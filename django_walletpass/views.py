@@ -6,7 +6,7 @@ from django.views.decorators.http import condition
 from django.db.models import Max
 import django.dispatch
 from django.shortcuts import get_object_or_404
-from django_passbook.models import Pass, Registration, Log
+from django_walletpass.models import Pass, Registration, Log
 
 FORMAT = '%Y-%m-%d %H:%M:%S'
 PASS_REGISTERED = django.dispatch.Signal()

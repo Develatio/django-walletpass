@@ -1,26 +1,21 @@
-from distutils.core import setup
+import os
+from setuptools import setup
 
-version = __import__('django_passbook').__version__
+here = os.path.abspath(os.path.dirname(__file__))
+README = open(os.path.join(here, 'README.md')).read()
 
 setup(
-    name='django-passbook',
-    version=version,
-    author='Fernando Aramendi',
-    author_email='fernando@devartis.com',
-    packages=['django_passbook', ],
-    url='http://github.com/devartis/django-passbook/',
+    name='django-walletpass',
+    version=0.1,
+    author='Develatio Technologies S.L.',
+    author_email='contacto@develat.io',
+    packages=['django_walletpass'],
+    url='http://github.com/develatio/django-walletpass/',
     license=open('LICENSE.txt').read(),
     description='Django Passbook server app',
-    long_description=open('README.md').read(),
-
-    download_url='http://pypi.python.org/packages/source/D/django-passbook/django-passbook-%s.tar.gz' % version,
-
+    long_description=README,
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Environment :: Other Environment',
         'Intended Audience :: Developers',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 2 :: Only',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 )
