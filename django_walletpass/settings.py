@@ -1,4 +1,9 @@
+import os
 from django.conf import settings
 
-WALLETPASS_CERT = getattr(settings, 'WALLETPASS_CERT', '')
-WALLETPASS_CERT_KEY = getattr(settings, 'WALLETPASS_CERT_KEY', '')
+FULL_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+if getattr(settings, 'APPLE_WWDRCA_CERT', None):
+    APPLE_WWDRCA_CERT = settings.APPLE_WWDRCA_CERT
+else:
+    APPLE_WWDRCA_CERT = open(os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.cer'), 'rb').read()
