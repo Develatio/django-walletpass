@@ -1,8 +1,11 @@
 # pylint: disable=protected-access, invalid-name, too-many-locals
+import secrets
+import base64
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.bindings.openssl.binding import Binding
 from cryptography.hazmat.primitives.serialization import pkcs12
+from django.utils.crypto import salted_hmac
 
 copenssl = Binding.lib
 cffi = Binding.ffi
@@ -64,3 +67,12 @@ def pkcs7_sign(p12_certificate,
 
     signed_pkcs7 = backend._read_mem_bio(bio_out)
     return signed_pkcs7
+
+
+def gen_random_token():
+    rand1 = secrets.token_bytes(16)
+    rand2 = secrets.token_bytes(7)
+    rand2 = salted_hmac(rand1, rand2).digest()
+    part_a = base64.urlsafe_b64encode(rand2).rstrip(b'=').decode('ascii')
+    part_b = secrets.token_urlsafe(20)
+    return part_b + part_a

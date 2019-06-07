@@ -32,6 +32,16 @@ WALLETPASS_CERTIFICATES_P12 = open('path/to/your/Certificates.p12', 'rb').read()
 WALLETPASS_CERTIFICATES_P12_PASSWORD = "mypassword"
 ```
 
+Add extra needed conf to your settings.py file.
+
+```
+WALLETPASS_PASS_TYPE_ID = ""
+WALLETPASS_TEAM_ID = ""
+WALLETPASS_SERVICE_URL = ""
+```
+
+
+
 
 You should also import the urls in your site urls.
 ```
