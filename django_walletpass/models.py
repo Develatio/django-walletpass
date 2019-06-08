@@ -62,10 +62,14 @@ class PassBuilder:
         Args:
             tmp_pass_dir (str): temporal dir path
         """
-        for filename, filecontent in self.extra_files:
-            # Add extra files to manifest
-            self.manifest_dict[filename] = hashlib.sha1(filecontent).hexdigest()
-            ff = open(os.path.join(tmp_pass_dir, filename), 'wb')
+        for relative_file_path, filecontent in self.extra_files.items():
+            # Add files to manifest
+            self.manifest_dict[relative_file_path] = hashlib.sha1(filecontent).hexdigest()
+            dest_abs_filepath = os.path.join(tmp_pass_dir, relative_file_path)
+            dest_abs_dirpath = os.path.dirname(dest_abs_filepath)
+            if not os.path.exists(dest_abs_dirpath):
+                os.makedirs(dest_abs_dirpath)
+            ff = open(dest_abs_filepath, 'wb')
             ff.write(filecontent)
             ff.close()
 
@@ -172,8 +176,8 @@ class PassBuilder:
             self.builded_pass_content = self._zip_all(tmp_pass_dir)
         return self.builded_pass_content
 
-    def add_file(name, content):
-        self.extra_files[name] = content
+    def add_file(self, path, content):
+        self.extra_files[path] = content
 
 
 class Pass(models.Model):
