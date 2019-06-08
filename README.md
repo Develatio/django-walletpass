@@ -1,3 +1,7 @@
+![PyPI](https://img.shields.io/pypi/v/django-walletpass.svg)
+![t](https://img.shields.io/badge/status-beta-red.svg)
+
+
 # django-walletpass
 
 
@@ -6,16 +10,19 @@ This application implements the creation of **signed .pkpass** files and
 
 ## Requirements
 
-
 - Django 2.*
-- openssl (for .pkpass sign with pyca/cryptography C bindings)
+- python >= 3.5
+- pyca/cryptography (for .pkpass sign with pyca/cryptography C bindings)
 
 ## Getting Started
 
+### Install
 
 ```
 $ pip install django-walletpass
 ```
+
+### Configure
 
 Add 'django_walletpass' to you installed apps in the settings.py file.
 
@@ -40,9 +47,6 @@ WALLETPASS_TEAM_ID = ""
 WALLETPASS_SERVICE_URL = ""
 ```
 
-
-
-
 You should also import the urls in your site urls.
 ```
 urlpatterns = [
@@ -54,6 +58,7 @@ application.
 
 ```
 from django_walletpass.views import pass_registered, pass_unregistered
+
 @receiver(pass_registered)
 def pass_registered(sender, **kwargs):
     pass
@@ -82,7 +87,7 @@ builder = PassBuilder(directory='/path/to/your.pass/')
 ```
 
 If the base directory contains a `pass.json` it will be loaded, but remember
-that required attributes of `pass.json` will be overriden during build process
+that required attributes of `pass.json` will be overwritten during build process
 using this values:
 
 ```
@@ -121,7 +126,7 @@ Update one attr:
 builder.pass_data['description'] = "Organic Produce Loyalty Card"
 ```
 
-### Override automatically generated required attribute values
+### Overwrite automatically generated required attribute values
 
 ```
 builder.pass_data_required.update({
@@ -133,7 +138,7 @@ builder.pass_data_required.update({
 })
 ```
 
-you can override individual attributes:
+you can overwrite individual attributes:
 
 
 ```
@@ -142,7 +147,6 @@ builder.pass_data_required.update({
 })
 builder.pass_data_required['serialNumber] = 'cutomvalue'
 ```
-
 
 ### Add extra files
 
@@ -173,9 +177,3 @@ Write to file:
 pkpass_file = open('mypass.pkpass', 'rb')
 pkpass_file.write(pkpass_content)
 ```
-
-
-## Specification
-
-
-The complete specification can be found in the [Passbook Web Service Reference](https://developer.apple.com/library/prerelease/ios/#documentation/PassKit/Reference/PassKit_WebService/WebService.html).
