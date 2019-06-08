@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_passbook', '0001_initial'),
+        ('django_walletpass', '0001_initial'),
     ]
 
     operations = [

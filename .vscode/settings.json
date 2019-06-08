@@ -1,0 +1,14 @@
+{
+  "python.linting.pylintEnabled": true,
+  "python.linting.pep8Enabled": false,
+  "python.linting.enabled": true,
+  "python.formatting.provider": "yapf",
+  "python.formatting.yapfArgs": [
+    "--style={ column_limit: 119 }"
+  ],
+  "python.linting.pylintArgs": [
+    "--rcfile",
+    ".pylintrc"
+  ],
+  "python.pythonPath": "/usr/local/opt/python/bin/python3.7",
+}
