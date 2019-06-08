@@ -54,6 +54,8 @@ def pkcs7_sign(p12_certificate,
     # pyca/cryptography/src/_cffi_src/openssl/pkcs7.py
     # PKCS7 *PKCS7_sign(X509 *, EVP_PKEY *,
     #                   Cryptography_STACK_OF_X509 *, BIO *, int);
+    # signing-time attr is automatically added:
+    # https://www.openssl.org/docs/man1.1.1/man3/PKCS7_sign.html
     pkcs7 = copenssl.PKCS7_sign(
         cert._x509,
         pkey._evp_pkey,
@@ -63,7 +65,7 @@ def pkcs7_sign(p12_certificate,
     )
 
     bio_out = backend._create_mem_bio_gc()
-    copenssl.PEM_write_bio_PKCS7(bio_out, pkcs7)
+    copenssl.i2d_PKCS7_bio(bio_out, pkcs7)
 
     signed_pkcs7 = backend._read_mem_bio(bio_out)
     return signed_pkcs7
