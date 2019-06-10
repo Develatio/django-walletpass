@@ -198,7 +198,7 @@ class Pass(models.Model):
     updated_at = models.DateTimeField()
 
     def push_notification(self):
-        push_module = import_module(dwp_settings.WALLETPASS_PUSH_CLASS)
+        push_module = import_module(WALLETPASS_CONF['WALLETPASS_PUSH_CLASS'])
         push_module.push_notification_from_instance(self)
 
     def __unicode__(self):

@@ -13,7 +13,7 @@ setup(
     packages=['django_walletpass'],
     url='http://github.com/develatio/django-walletpass/',
     license='BSD',
-    install_requires=['Django>=2.0', 'cryptography>=2.4.2'],
+    install_requires=['Django>=2.0', 'cryptography>=2.4.2', 'apns2>=0.5.0'],
     description='Django .pkpass build and server',
     long_description=README,
     long_description_content_type='text/markdown',
