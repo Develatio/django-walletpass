@@ -83,6 +83,34 @@ def pass_unregistered(sender, **kwargs):
     pass
 ```
 
+
+### Configure storage and upload path (optional)
+
+```
+WALLETPASS_CONF = {
+    # Defaults to DEFAULT_FILE_STORAGE
+    'STORAGE_CLASS': 'my.custom.storageclass,
+    'UPLOAD_TO': 'passes'
+}
+```
+
+### Push notifications sandbox (optional)
+
+```
+WALLETPASS_CONF = {
+    'PUSH_SANDBOX': False,
+}
+```
+
+### CA certificates path (optional)
+
+WALLETPASS_CONF = {
+    # Cert in der format.
+    'APPLE_WWDRCA_CERT_PATH': 'path/to/cert.cer',
+    # Cert in pem format.
+    'APPLE_WWDRCA_PEM_PATH': 'path/to/cert.pem',
+}
+
 ## Build and sign passes
 
 ### Init builder object:
@@ -191,4 +219,25 @@ Write to file:
 ```
 pkpass_file = open('mypass.pkpass', 'rb')
 pkpass_file.write(pkpass_content)
+```
+
+Save to new record in DB:
+
+```
+pass_instance = builder.save_to_db()
+```
+
+Save to existent record in DB:
+
+```
+builder.save_to_db(pass_instance)
+```
+
+### Load .pkpass from DB and update
+
+```
+builder = pass_instance.get_pass_builder()
+builder.pass_data.update({'field': 'value'})
+builder.build()
+builder.save_to_db(pass_instance)
 ```
