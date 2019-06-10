@@ -1,4 +1,5 @@
 import os
+import uuid
 import hashlib
 import json
 import tempfile
@@ -7,10 +8,13 @@ import zipfile
 from importlib import import_module
 from glob import glob
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 from django_walletpass import crypto
+from django_walletpass.storage import WalletPassStorage
 from django_walletpass.settings import (
     WALLETPASS_CONF,
     CERT_CONTENT,
@@ -183,6 +187,30 @@ class PassBuilder:
             self.builded_pass_content = self._zip_all(tmp_pass_dir)
         return self.builded_pass_content
 
+    def save_to_db(self, instance=None):
+        """Saves the content of builded and zipped pass into Pass model.
+
+        Args:
+            instance (Pass, optional): Pass instance, a new one will be created
+                if none provided. Defaults to None.
+
+        Returns:
+            Pass: instance of Pass (already saved)
+        """
+        if instance is None:
+            instance = Pass()
+
+        setattr(instance, 'pass_type_identifier', WALLETPASS_CONF['PASS_TYPE_ID'])
+        setattr(instance, 'serial_number', self.pass_data_required.get('serialNumber'))
+        setattr(instance, 'authentication_token', self.pass_data_required.get('authenticationToken'))
+        setattr(instance, 'updated_at', timezone.now())
+
+        content = ContentFile(self.builded_pass_content)
+        instance.data.save(f"{uuid.uuid1()}.pkpass", content)
+
+        instance.save()
+        return instance
+
     def add_file(self, path, content):
         self.extra_files[path] = content
 
@@ -194,12 +222,40 @@ class Pass(models.Model):
     pass_type_identifier = models.CharField(max_length=50)
     serial_number = models.CharField(max_length=50)
     authentication_token = models.CharField(max_length=50)
-    data = models.FileField(upload_to='passes')
+    data = models.FileField(
+        upload_to=WALLETPASS_CONF['UPLOAD_TO'],
+        storage=WalletPassStorage(),
+    )
     updated_at = models.DateTimeField()
 
     def push_notification(self):
         push_module = import_module(WALLETPASS_CONF['WALLETPASS_PUSH_CLASS'])
         push_module.push_notification_from_instance(self)
+
+    def get_pass_builder(self):
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.mkdir(os.path.join(tmpdirname, 'data.pass'))
+            tmp_pass_dir = os.path.join(tmpdirname, 'data.pass')
+            # Put zip file into tmp dir
+            zip_path = os.path.join(tmpdirname, 'walletcard.pkpass')
+            zip_pkpass = open(zip_path, 'wb')
+            zip_pkpass.write(self.data.read())
+            zip_pkpass.close()
+            # Extract zip file to tmp dir
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                zip_ref.extractall(tmp_pass_dir)
+            # Populate builder with zip content
+            builder = PassBuilder()
+            for filepath in glob(os.path.join(tmp_pass_dir, '**'), recursive=True):
+                filename = os.path.basename(filepath)
+                relative_file_path = os.path.relpath(filepath, tmp_pass_dir)
+                if filename == 'pass.json':
+                    builder.load_pass_json_file(tmp_pass_dir)
+                    continue
+                if relative_file_path in ['signature', 'manifest.json', '.', '..']:
+                    continue
+                builder.add_file(relative_file_path, open(filepath, 'rb').read())
+        return builder
 
     def __unicode__(self):
         return self.serial_number
