@@ -7,14 +7,14 @@ README = open(os.path.join(here, 'README.md')).read()
 setup(
     name='django-walletpass',
     python_requires='>=3.5.0',
-    version='0.2',
+    version='0.3',
     author='Develatio Technologies S.L.',
     author_email='contacto@develat.io',
     packages=['django_walletpass'],
     url='http://github.com/develatio/django-walletpass/',
     license='BSD',
     install_requires=['Django>=2.0', 'cryptography>=2.4.2', 'apns2>=0.5.0'],
-    description='Django .pkpass build and server',
+    description='Django .pkpass builder, server and push notifications',
     long_description=README,
     long_description_content_type='text/markdown',
     classifiers=[
