@@ -8,11 +8,18 @@
 This application implements the creation of **signed .pkpass** files and
 **API endpoints** for pass registration, updates and logging.
 
+## Features
+
+- Build .pkpass with the `PassBuilder` class
+- Sign .pkpass with SMIME (as apple describes in their documentation)
+- Server implementation for store, registration, update and logging
+- Push notifications (APNs) on pass update
+
 ## Requirements
 
 - Django 2.*
 - python >= 3.5
-- pyca/cryptography (for .pkpass sign with pyca/cryptography C bindings)
+- pyca/cryptography (for .pkpass SMIME sign)
 
 ## Getting Started
 
@@ -26,31 +33,39 @@ $ pip install django-walletpass
 
 Add 'django_walletpass' to you installed apps in the settings.py file.
 
-Load the content of your certificates in your settings.py file. This is a good
-place to use your secrets strategy, just remember that the content of
-`WALLETPASS_CERTIFICATES_P12` and `WALLETPASS_CERTIFICATES_P12_PASSWORD` should
-be in `bytes` format.
+Load the content of your cert.pem and key.pem in your settings.py file.
 
 ```
-# Your Certificates.p12 content in bytes format
-WALLETPASS_CERTIFICATES_P12 = open('path/to/your/Certificates.p12', 'rb').read()
 
-# The password for Certificates.p12 (None if isn't protected)
-WALLETPASS_CERTIFICATES_P12_PASSWORD = "mypassword"
+WALLETPASS = {
+    'CERT_PATH': 'path/to/your/cert.pem',
+    'KEY_PATH': 'path/to/your/key.pem',
+    # (None if isn't protected)
+    # MUST be in bytes-like
+    'KEY_PASSWORD': b'1234',
+}
 ```
 
 Add extra needed conf to your settings.py file.
 
 ```
-WALLETPASS_PASS_TYPE_ID = ""
-WALLETPASS_TEAM_ID = ""
-WALLETPASS_SERVICE_URL = ""
+WALLETPASS = {
+    'CERT_PATH': 'path/to/your/cert.pem',
+    'KEY_PATH': 'path/to/your/key.pem',
+    # (None if isn't protected)
+    # MUST be in bytes-like
+    'KEY_PASSWORD': b'1234',
+
+    'PASS_TYPE_ID': 'pass.io.develat.devpubs.example',
+    'TEAM_ID': '123456',
+    'SERVICE_URL': 'https://example.com/passes/',
+}
 ```
 
-You should also import the urls in your site urls.
+You should also import the urls into your site urls.
 ```
 urlpatterns = [
-    url(r'^api/', include('django_walletpass.urls')),
+    url(r'^api/passes/', include('django_walletpass.urls')),
 ```
 
 django-walletpass signals certain events that might come handy in your
@@ -67,6 +82,34 @@ def pass_registered(sender, **kwargs):
 def pass_unregistered(sender, **kwargs):
     pass
 ```
+
+
+### Configure storage and upload path (optional)
+
+```
+WALLETPASS_CONF = {
+    # Defaults to DEFAULT_FILE_STORAGE
+    'STORAGE_CLASS': 'my.custom.storageclass,
+    'UPLOAD_TO': 'passes'
+}
+```
+
+### Push notifications sandbox (optional)
+
+```
+WALLETPASS_CONF = {
+    'PUSH_SANDBOX': False,
+}
+```
+
+### CA certificates path (optional)
+
+WALLETPASS_CONF = {
+    # Cert in der format.
+    'APPLE_WWDRCA_CERT_PATH': 'path/to/cert.cer',
+    # Cert in pem format.
+    'APPLE_WWDRCA_PEM_PATH': 'path/to/cert.pem',
+}
 
 ## Build and sign passes
 
@@ -92,10 +135,10 @@ using this values:
 
 ```
 {
-    "passTypeIdentifier": settings.WALLETPASS_PASS_TYPE_ID,
+    "passTypeIdentifier": WALLETPASS_CONF['PASS_TYPE_ID'],
     "serialNumber": secrets.token_urlsafe(20),
-    "teamIdentifier": settings.WALLETPASS_TEAM_ID,
-    "webServiceURL": settings.WALLETPASS_SERVICE_URL,
+    "teamIdentifier": WALLETPASS_CONF['TEAM_ID'],
+    "webServiceURL": WALLETPASS_CONF['SERVICE_URL'],
     "authenticationToken": crypto.gen_random_token(),
 }
 ```
@@ -176,4 +219,25 @@ Write to file:
 ```
 pkpass_file = open('mypass.pkpass', 'rb')
 pkpass_file.write(pkpass_content)
+```
+
+Save to new record in DB:
+
+```
+pass_instance = builder.save_to_db()
+```
+
+Save to existent record in DB:
+
+```
+builder.save_to_db(pass_instance)
+```
+
+### Load .pkpass from DB and update
+
+```
+builder = pass_instance.get_pass_builder()
+builder.pass_data.update({'field': 'value'})
+builder.build()
+builder.save_to_db(pass_instance)
 ```
