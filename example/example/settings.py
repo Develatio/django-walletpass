@@ -128,4 +128,5 @@ WALLETPASS = {
     'PASS_TYPE_ID': 'pass.io.develat.devpubs.example',
     'TEAM_ID': '123456',
     'SERVICE_URL': 'https://example.com/walletpass/',
+    'PUSH_SANDBOX': True,
 }
