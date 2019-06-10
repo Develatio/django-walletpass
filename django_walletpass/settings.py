@@ -12,7 +12,9 @@ WALLETPASS_CONF = {
     'TEAM_ID': None,
     'SERVICE_URL': None,
     'WALLETPASS_PUSH_CLASS': 'django_walletpass.services.PushBackend',
-    'PUSH_SANDBOX': False
+    'PUSH_SANDBOX': False,
+    'STORAGE_CLASS': django_settings.DEFAULT_FILE_STORAGE,
+    'UPLOAD_TO': 'passes'
 }
 
 if getattr(django_settings, 'WALLETPASS', None):
