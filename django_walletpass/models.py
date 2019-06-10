@@ -233,6 +233,7 @@ class Pass(models.Model):
         push_module.push_notification_from_instance(self)
 
     def get_pass_builder(self):
+        builder = PassBuilder()
         with tempfile.TemporaryDirectory() as tmpdirname:
             os.mkdir(os.path.join(tmpdirname, 'data.pass'))
             tmp_pass_dir = os.path.join(tmpdirname, 'data.pass')
@@ -245,7 +246,6 @@ class Pass(models.Model):
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(tmp_pass_dir)
             # Populate builder with zip content
-            builder = PassBuilder()
             for filepath in glob(os.path.join(tmp_pass_dir, '**'), recursive=True):
                 filename = os.path.basename(filepath)
                 relative_file_path = os.path.relpath(filepath, tmp_pass_dir)
@@ -255,6 +255,13 @@ class Pass(models.Model):
                 if relative_file_path in ['signature', 'manifest.json', '.', '..']:
                     continue
                 builder.add_file(relative_file_path, open(filepath, 'rb').read())
+        # Load of these fields due to that those fields are ignored
+        # on pass.json loading
+        builder.pass_data_required.update({
+            "passTypeIdentifier": self.pass_type_identifier,
+            "serialNumber": self.serial_number,
+            "authenticationToken": self.authentication_token,
+        })
         return builder
 
     def __unicode__(self):

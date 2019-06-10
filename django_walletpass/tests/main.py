@@ -43,4 +43,19 @@ class BuilderTestCase(TestCase):
         self.assertIsNotNone(instance.pk)
 
         builder2 = instance.get_pass_builder()
+        builder2.build()
         self.assertEqual(builder.manifest_dict, builder2.manifest_dict)
+        self.assertEqual(builder.pass_data, builder2.pass_data)
+
+        builder2.pass_data.update({"organizationName": 'test'})
+        builder2.build()
+        builder2.save_to_db(instance)
+
+        builder3 = instance.get_pass_builder()
+        builder3.build()
+
+        self.assertEqual(builder2.manifest_dict, builder3.manifest_dict)
+        self.assertEqual(builder2.pass_data, builder3.pass_data)
+
+        self.assertNotEqual(builder.manifest_dict, builder3.manifest_dict)
+        self.assertNotEqual(builder.pass_data, builder3.pass_data)
