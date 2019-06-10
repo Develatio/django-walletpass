@@ -120,10 +120,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# WALLETPASS
-WALLETPASS_CERTIFICATES_P12 = open(os.path.join(BASE_DIR, 'certs', 'cert.p12'), 'rb').read()
-WALLETPASS_CERTIFICATES_P12_PASSWORD = "1234"
 
-WALLETPASS_PASS_TYPE_ID = "pass.io.develat.devpubs.example"
-WALLETPASS_TEAM_ID = "123456"
-WALLETPASS_SERVICE_URL = "https://example.com/walletpass/"
+WALLETPASS = {
+    'CERT_PATH': os.path.join(BASE_DIR, 'certs', 'cert.pem'),
+    'KEY_PATH': os.path.join(BASE_DIR, 'certs', 'key.pem'),
+    'KEY_PASSWORD': b'1234',
+    'PASS_TYPE_ID': 'pass.io.develat.devpubs.example',
+    'TEAM_ID': '123456',
+    'SERVICE_URL': 'https://example.com/walletpass/',
+}

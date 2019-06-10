@@ -4,7 +4,8 @@ import base64
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.bindings.openssl.binding import Binding
-from cryptography.hazmat.primitives.serialization import pkcs12
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
+
 from django.utils.crypto import salted_hmac
 
 copenssl = Binding.lib
@@ -13,31 +14,31 @@ cffi = Binding.ffi
 
 # SMIME isn't supported by pyca/cryptography:
 # https://github.com/pyca/cryptography/issues/1621
-def pkcs7_sign(p12_certificate,
+def pkcs7_sign(certcontent,
+               keycontent,
                wwdr_certificate,
                data,
-               certificate_password=None,
+               key_password=None,
                flag=copenssl.PKCS7_BINARY | copenssl.PKCS7_DETACHED):
     """Sign data with PKCS#7.
 
     Args:
-        p12_certificate (bytes): Content of Certificates.p12
-        wwdr_certificate (bytes): Content of Intermediate cert
+        keycontent (bytes): Content of pem file certificate
+        keycontent (bytes): Content of key file
+        wwdr_certificate (bytes): Content of Intermediate cert file
         data (bytes): Data to be signed
-        certificate_password (str, optional): .p12 cert pass. Defaults to None.
+        key_password (bytes, optional): key file passwd. Defaults to None.
         flag (int, optional): Flags to be passed to PKCS7_sign C lib.
             Defaults to copenssl.PKCS7_BINARY|copenssl.PKCS7_DETACHED.
     """
 
     backend = default_backend()
-    # Load Certificates.p12
-    pkey, cert, _ = pkcs12.load_key_and_certificates(
-        p12_certificate,
-        bytes(certificate_password, 'utf8'),
-        backend,
-    )
 
-    # Load intermediate cert and push it into Cryptography_STACK_OF_X509 *
+    # Load cert and key
+    pkey = load_pem_private_key(keycontent, key_password, backend=backend)
+    cert = x509.load_pem_x509_certificate(certcontent, backend=backend)
+
+    # Load intermediate cert and push it into < Cryptography_STACK_OF_X509 * >
     intermediate_cert = x509.load_der_x509_certificate(
         wwdr_certificate,
         backend,

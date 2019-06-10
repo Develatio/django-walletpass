@@ -4,22 +4,28 @@ import json
 import tempfile
 import secrets
 import zipfile
+from importlib import import_module
 from glob import glob
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django_walletpass import settings as dwp_settings
 from django_walletpass import crypto
+from django_walletpass.settings import (
+    WALLETPASS_CONF,
+    CERT_CONTENT,
+    KEY_CONTENT,
+    WWDRCA_CONTENT,
+)
 
 
 class PassBuilder:
     pass_data = {}
     pass_data_required = {
-        "passTypeIdentifier": settings.WALLETPASS_PASS_TYPE_ID,
+        "passTypeIdentifier": WALLETPASS_CONF['PASS_TYPE_ID'],
         "serialNumber": secrets.token_urlsafe(20),
-        "teamIdentifier": settings.WALLETPASS_TEAM_ID,
-        "webServiceURL": settings.WALLETPASS_SERVICE_URL,
+        "teamIdentifier": WALLETPASS_CONF['TEAM_ID'],
+        "webServiceURL": WALLETPASS_CONF['SERVICE_URL'],
         "authenticationToken": crypto.gen_random_token(),
     }
     directory = None
@@ -99,10 +105,11 @@ class PassBuilder:
         ff.write(manifest_json_bytes)
         ff.close()
         signature_content = crypto.pkcs7_sign(
-            settings.WALLETPASS_CERTIFICATES_P12,
-            dwp_settings.APPLE_WWDRCA_CERT,
-            manifest_json_bytes,
-            settings.WALLETPASS_CERTIFICATES_P12_PASSWORD,
+            certcontent=CERT_CONTENT,
+            keycontent=KEY_CONTENT,
+            wwdr_certificate=WWDRCA_CONTENT,
+            data=manifest_json_bytes,
+            key_password=WALLETPASS_CONF['KEY_PASSWORD'],
         )
         ff = open(os.path.join(tmp_pass_dir, 'signature'), 'wb')
         ff.write(signature_content)
@@ -189,6 +196,10 @@ class Pass(models.Model):
     authentication_token = models.CharField(max_length=50)
     data = models.FileField(upload_to='passes')
     updated_at = models.DateTimeField()
+
+    def push_notification(self):
+        push_module = import_module(dwp_settings.WALLETPASS_PUSH_CLASS)
+        push_module.push_notification_from_instance(self)
 
     def __unicode__(self):
         return self.serial_number

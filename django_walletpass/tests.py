@@ -1,14 +1,20 @@
 from django.test import TestCase
 from django.conf import settings
 from django_walletpass import crypto
-import django_walletpass.settings as dwp_settings
+from django_walletpass.settings import (
+    WALLETPASS_CONF,
+    CERT_CONTENT,
+    KEY_CONTENT,
+    WWDRCA_CONTENT,
+)
 
 
 class CryptoTestCase(TestCase):
     def test_smime_sign(self):
         res = crypto.pkcs7_sign(
-            settings.WALLETPASS_CERTIFICATES_P12,
-            dwp_settings.APPLE_WWDRCA_CERT,
-            b'data to be signed',
-            settings.WALLETPASS_CERTIFICATES_P12_PASSWORD,
+            certcontent=CERT_CONTENT,
+            keycontent=KEY_CONTENT,
+            wwdr_certificate=WWDRCA_CONTENT,
+            data=b'data to be signed',
+            key_password=WALLETPASS_CONF['KEY_PASSWORD'],
         )
