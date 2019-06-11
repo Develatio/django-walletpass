@@ -1,4 +1,4 @@
-include *.txt *.md
+include *.txt *.md django_walletpass/certs/AppleWWDRCA.cer django_walletpass/certs/AppleWWDRCA.pem
 recursive-include docs *.txt
 
 

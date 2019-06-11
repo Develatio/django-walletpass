@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.md')).read()
@@ -7,10 +7,11 @@ README = open(os.path.join(here, 'README.md')).read()
 setup(
     name='django-walletpass',
     python_requires='>=3.5.0',
-    version='0.4',
+    version='0.5',
     author='Develatio Technologies S.L.',
     author_email='contacto@develat.io',
-    packages=['django_walletpass'],
+    packages=find_packages(),
+    include_package_data=True,
     url='http://github.com/develatio/django-walletpass/',
     license='BSD',
     install_requires=['Django>=2.0', 'cryptography>=2.4.2', 'apns2>=0.5.0'],
