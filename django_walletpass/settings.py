@@ -38,6 +38,7 @@ class ConfigManager(UserDict):
 
 
 dwpconfig = ConfigManager(DEFAULTS)
+dwpconfig.update_conf()
 
 
 def update_conf(*args, **kwargs):
