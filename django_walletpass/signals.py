@@ -2,7 +2,7 @@ from importlib import import_module
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django_walletpass.models import Pass
-from django_walletpass.settings import WALLETPASS_CONF
+from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 
 @receiver(post_save, sender=Pass)

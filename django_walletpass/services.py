@@ -6,7 +6,7 @@ from apns2.client import APNsClient
 from apns2.credentials import Credentials
 from apns2.payload import Payload
 from django_walletpass.models import Registration
-from django_walletpass.settings import WALLETPASS_CONF
+from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 logger = logging.getLogger('django.contrib.gis')
 
