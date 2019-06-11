@@ -104,12 +104,14 @@ WALLETPASS_CONF = {
 
 ### CA certificates path (optional)
 
+```
 WALLETPASS_CONF = {
     # Cert in der format.
     'APPLE_WWDRCA_CERT_PATH': 'path/to/cert.cer',
     # Cert in pem format.
     'APPLE_WWDRCA_PEM_PATH': 'path/to/cert.pem',
 }
+```
 
 ## Build and sign passes
 
