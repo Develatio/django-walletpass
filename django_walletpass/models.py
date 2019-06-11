@@ -15,12 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django_walletpass import crypto
 from django_walletpass.storage import WalletPassStorage
-from django_walletpass.settings import (
-    WALLETPASS_CONF,
-    CERT_CONTENT,
-    KEY_CONTENT,
-    WWDRCA_CONTENT,
-)
+from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 
 class PassBuilder:
@@ -109,9 +104,9 @@ class PassBuilder:
         ff.write(manifest_json_bytes)
         ff.close()
         signature_content = crypto.pkcs7_sign(
-            certcontent=CERT_CONTENT,
-            keycontent=KEY_CONTENT,
-            wwdr_certificate=WWDRCA_CONTENT,
+            certcontent=WALLETPASS_CONF['CERT_CONTENT'],
+            keycontent=WALLETPASS_CONF['KEY_CONTENT'],
+            wwdr_certificate=WALLETPASS_CONF['WWDRCA_CONTENT'],
             data=manifest_json_bytes,
             key_password=WALLETPASS_CONF['KEY_PASSWORD'],
         )

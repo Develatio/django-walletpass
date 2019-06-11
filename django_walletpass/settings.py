@@ -1,12 +1,18 @@
 import os
+from collections import UserDict
 from django.conf import settings as django_settings
+from django.test.signals import setting_changed
 
 FULL_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WALLETPASS_CONF = {
+DEFAULTS = {
     'CERT_PATH': None,
+    'CERT_CONTENT': None,
+    'KEY_CONTENT': None,
+    'WWDRCA_CONTENT': None,
     'KEY_PATH': None,
     'KEY_PASSWORD': None,
     'APPLE_WWDRCA_CERT_PATH': os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.cer'),
+    'WWDRCA_CONTENT': open(os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.cer'), 'rb').read(),
     'APPLE_WWDRCA_PEM_PATH': os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.pem'),
     'PASS_TYPE_ID': None,
     'TEAM_ID': None,
@@ -17,9 +23,26 @@ WALLETPASS_CONF = {
     'UPLOAD_TO': 'passes'
 }
 
-if getattr(django_settings, 'WALLETPASS', None):
-    WALLETPASS_CONF.update(django_settings.WALLETPASS)
 
-CERT_CONTENT = open(WALLETPASS_CONF['CERT_PATH'], 'rb').read()
-KEY_CONTENT = open(WALLETPASS_CONF['KEY_PATH'], 'rb').read()
-WWDRCA_CONTENT = open(WALLETPASS_CONF['APPLE_WWDRCA_CERT_PATH'], 'rb').read()
+class ConfigManager(UserDict):
+    def update_conf(self):
+        self.data = DEFAULTS
+        new = django_settings.WALLETPASS
+        if 'CERT_PATH' in new:
+            new['CERT_CONTENT'] = open(new['CERT_PATH'], 'rb').read()
+        if 'KEY_PATH' in new:
+            new['KEY_CONTENT'] = open(new['KEY_PATH'], 'rb').read()
+        if 'APPLE_WWDRCA_CERT_PATH' in new:
+            new['WWDRCA_CONTENT'] = open(new['APPLE_WWDRCA_CERT_PATH'], 'rb').read()
+        self.data.update(new)
+
+
+dwpconfig = ConfigManager(DEFAULTS)
+
+
+def update_conf(*args, **kwargs):
+    if kwargs['setting'] == 'WALLETPASS':
+        dwpconfig.update_conf()
+
+
+setting_changed.connect(update_conf)
