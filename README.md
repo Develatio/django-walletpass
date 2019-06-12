@@ -226,13 +226,15 @@ pkpass_file.write(pkpass_content)
 Save to new record in DB:
 
 ```
-pass_instance = builder.save_to_db()
+pass_instance = builder.write_to_model()
+pass_instance.save()
 ```
 
 Save to existent record in DB:
 
 ```
-builder.save_to_db(pass_instance)
+builder.write_to_model(pass_instance)
+pass_instance.save()
 ```
 
 ### Load .pkpass from DB and update
