@@ -14,6 +14,8 @@ This application implements the creation of **signed .pkpass** files and
 - Sign .pkpass with SMIME (as apple describes in their documentation)
 - Server implementation for store, registration, update and logging
 - Push notifications (APNs) on pass update
+- Individual storage backend setting
+- Support for mime-type upload using django-storages S3
 
 ## Requirements
 
