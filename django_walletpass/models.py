@@ -210,6 +210,7 @@ class PassBuilder:
             filename = f"{uuid.uuid1()}.pkpass"
 
         content = WalletpassContentFile(self.builded_pass_content)
+        instance.data.delete()
         instance.data.save(filename, content)
 
         return instance
