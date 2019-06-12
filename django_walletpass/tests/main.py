@@ -1,20 +1,15 @@
 from django.test import TestCase
 from django_walletpass import crypto
 from django_walletpass.models import PassBuilder
-from django_walletpass.settings import (
-    WALLETPASS_CONF,
-    CERT_CONTENT,
-    KEY_CONTENT,
-    WWDRCA_CONTENT,
-)
+from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 
 class CryptoTestCase(TestCase):
     def test_smime_sign(self):
-        res = crypto.pkcs7_sign(
-            certcontent=CERT_CONTENT,
-            keycontent=KEY_CONTENT,
-            wwdr_certificate=WWDRCA_CONTENT,
+        crypto.pkcs7_sign(
+            certcontent=WALLETPASS_CONF['CERT_CONTENT'],
+            keycontent=WALLETPASS_CONF['KEY_CONTENT'],
+            wwdr_certificate=WALLETPASS_CONF['WWDRCA_CONTENT'],
             data=b'data to be signed',
             key_password=WALLETPASS_CONF['KEY_PASSWORD'],
         )
@@ -39,7 +34,8 @@ class BuilderTestCase(TestCase):
 
         builder.build()
 
-        instance = builder.save_to_db()
+        instance = builder.write_to_model()
+        instance.save()
         self.assertIsNotNone(instance.pk)
 
         builder2 = instance.get_pass_builder()
@@ -49,7 +45,8 @@ class BuilderTestCase(TestCase):
 
         builder2.pass_data.update({"organizationName": 'test'})
         builder2.build()
-        builder2.save_to_db(instance)
+        builder2.write_to_model(instance)
+        instance.save()
 
         builder3 = instance.get_pass_builder()
         builder3.build()

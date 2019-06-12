@@ -14,6 +14,8 @@ This application implements the creation of **signed .pkpass** files and
 - Sign .pkpass with SMIME (as apple describes in their documentation)
 - Server implementation for store, registration, update and logging
 - Push notifications (APNs) on pass update
+- Individual storage backend setting
+- Support for mime-type upload using django-storages S3
 
 ## Requirements
 
@@ -104,12 +106,14 @@ WALLETPASS_CONF = {
 
 ### CA certificates path (optional)
 
+```
 WALLETPASS_CONF = {
     # Cert in der format.
     'APPLE_WWDRCA_CERT_PATH': 'path/to/cert.cer',
     # Cert in pem format.
     'APPLE_WWDRCA_PEM_PATH': 'path/to/cert.pem',
 }
+```
 
 ## Build and sign passes
 
@@ -224,13 +228,15 @@ pkpass_file.write(pkpass_content)
 Save to new record in DB:
 
 ```
-pass_instance = builder.save_to_db()
+pass_instance = builder.write_to_model()
+pass_instance.save()
 ```
 
 Save to existent record in DB:
 
 ```
-builder.save_to_db(pass_instance)
+builder.write_to_model(pass_instance)
+pass_instance.save()
 ```
 
 ### Load .pkpass from DB and update
