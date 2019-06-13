@@ -79,6 +79,12 @@ class RegisterPassViewSet(viewsets.ViewSet):
         pass_ = get_pass(pass_type_id, serial_number)
         if request.META.get('HTTP_AUTHORIZATION') != 'ApplePass %s' % pass_.authentication_token:
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+        registration = Registration.objects.filter(
+            device_library_identifier=device_library_id,
+            pazz=pass_,
+        )
+        if registration:
+            return Response({}, status=status.HTTP_200_OK)
         registration.delete()
         PASS_UNREGISTERED.send(sender=pass_)
         return Response({}, status=status.HTTP_200_OK)
