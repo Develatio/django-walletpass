@@ -5,9 +5,9 @@ import json
 import tempfile
 import secrets
 import zipfile
-from importlib import import_module
 from glob import glob
 from django.core.exceptions import ValidationError
+from django.utils.module_loading import import_string
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -233,7 +233,8 @@ class Pass(models.Model):
     updated_at = models.DateTimeField()
 
     def push_notification(self):
-        push_module = import_module(WALLETPASS_CONF['WALLETPASS_PUSH_CLASS'])
+        klass = import_string(WALLETPASS_CONF['WALLETPASS_PUSH_CLASS'])
+        push_module = klass()
         push_module.push_notification_from_instance(self)
 
     def new_pass_builder(self, directory=None):
