@@ -29,6 +29,10 @@ class PushBackend:
             logger.error("django_walletpass SSLError: %s", e)
         except StreamResetError as e:
             logger.error("django_walletpass StreamResetError. Bad cert or token? %s", e)
+        # Errors should never pass silently.
+        except Exception as e:
+            # Unless explicitly silenced.
+            logger.error("django_walletpass uncaught error %s", e)
 
     def get_credentials(self):
         context = init_context(
