@@ -1,6 +1,9 @@
 import json
 from datetime import datetime
+from calendar import timegm
 from django.http import HttpResponse
+from django.utils.http import http_date
+from django.middleware.http import ConditionalGetMiddleware
 from django.db.models import Max
 import django.dispatch
 from django.shortcuts import get_object_or_404
@@ -105,7 +108,10 @@ class LatestVersionViewSet(viewsets.ViewSet):
         # TODO: handle remote storages like S3
         response = HttpResponse(pass_.data.read(), content_type='application/vnd.apple.pkpass')
         response['Content-Disposition'] = 'attachment; filename=pass.pkpass'
-        return response
+
+        response['Last-Modified'] = http_date(timegm(pass_.updated_at.utctimetuple()))
+        middleware = ConditionalGetMiddleware()
+        return middleware.process_response(request, response)
 
 
 # TODO: use ModelViewSet
