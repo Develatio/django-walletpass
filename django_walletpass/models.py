@@ -202,7 +202,6 @@ class PassBuilder:
         setattr(instance, 'pass_type_identifier', WALLETPASS_CONF['PASS_TYPE_ID'])
         setattr(instance, 'serial_number', self.pass_data_required.get('serialNumber'))
         setattr(instance, 'authentication_token', self.pass_data_required.get('authenticationToken'))
-        setattr(instance, 'updated_at', timezone.now())
 
         if instance.data.name:
             filename = os.path.basename(instance.data.name)
@@ -230,7 +229,7 @@ class Pass(models.Model):
         upload_to=WALLETPASS_CONF['UPLOAD_TO'],
         storage=WalletPassStorage(),
     )
-    updated_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)
 
     def push_notification(self):
         klass = import_string(WALLETPASS_CONF['WALLETPASS_PUSH_CLASS'])
