@@ -34,3 +34,4 @@ nosetests.xml
 .project
 .pydevproject
 /example/db.sqlite3
+/example/passes
