@@ -39,6 +39,7 @@ class PushBackend:
             # cert_path=WALLETPASS_CONF['APPLE_WWDRCA_PEM_PATH'],
             cert_password=WALLETPASS_CONF['KEY_PASSWORD'],
         )
+
         return Credentials(context)
 
     def push_notification_with_token(self, token):
@@ -53,5 +54,5 @@ class PushBackend:
         self.push_notification_with_token(registration_instance.push_token)
 
     def push_notification_from_pk(self, registration_pk):
-        pass_instance = Registration.objects.get(pk=registration_pk)
-        return self.push_notification_from_instance(pass_instance)
+        registration = Registration.objects.get(pk=registration_pk)
+        return self.push_notification_from_instance(registration)

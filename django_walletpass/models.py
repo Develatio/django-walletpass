@@ -235,7 +235,8 @@ class Pass(models.Model):
     def push_notification(self):
         klass = import_string(WALLETPASS_CONF['WALLETPASS_PUSH_CLASS'])
         push_module = klass()
-        push_module.push_notification_from_instance(self)
+        for registration in self.registrations.all():
+            push_module.push_notification_from_instance(registration)
 
     def new_pass_builder(self, directory=None):
         builder = PassBuilder(directory)
@@ -297,7 +298,11 @@ class Registration(models.Model):
     """
     device_library_identifier = models.CharField(max_length=150)
     push_token = models.CharField(max_length=150)
-    pazz = models.ForeignKey(Pass, on_delete=models.CASCADE)
+    pazz = models.ForeignKey(
+        Pass,
+        on_delete=models.CASCADE,
+        related_name='registrations',
+    )
 
     def __unicode__(self):
         return self.device_library_identifier
