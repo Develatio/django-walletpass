@@ -7,7 +7,7 @@ README = open(os.path.join(here, 'README.md')).read()
 setup(
     name='django-walletpass',
     python_requires='>=3.5.0',
-    version='0.11',
+    version='0.12',
     author='Develatio Technologies S.L.',
     author_email='contacto@develat.io',
     packages=find_packages(),
