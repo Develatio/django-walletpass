@@ -26,7 +26,7 @@ class RegistrationsViewSet(viewsets.ViewSet):
 
     def list(self, request, device_library_id, pass_type_id):
         passes = Pass.objects.filter(
-            registration__device_library_identifier=device_library_id,
+            registrations__device_library_identifier=device_library_id,
             pass_type_identifier=pass_type_id,
         )
         if passes.count() == 0:
