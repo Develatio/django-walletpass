@@ -5,4 +5,4 @@ class DjangoWalletpassConfig(AppConfig):
     name = 'django_walletpass'
 
     def ready(self):
-        from . import signals as _signals
+        from django_walletpass import signals as _signals
