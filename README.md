@@ -89,6 +89,8 @@ def pass_unregistered(sender, **kwargs):
 
 ### Configure storage and upload path (optional)
 
+Default: DEFAULT_FILE_STORAGE
+
 ```
 WALLETPASS_CONF = {
     # Defaults to DEFAULT_FILE_STORAGE
@@ -98,6 +100,8 @@ WALLETPASS_CONF = {
 ```
 
 ### Push notifications sandbox (optional)
+
+Default: False
 
 ```
 WALLETPASS_CONF = {
@@ -115,6 +119,19 @@ WALLETPASS_CONF = {
     'APPLE_WWDRCA_PEM_PATH': 'path/to/cert.pem',
 }
 ```
+
+### Redirect to pass url (optional)
+Usefull if you are using `django-storages` and you want to serve your .pkpass
+files from `s3`.
+
+Default: False
+
+```
+WALLETPASS_CONF = {
+    STORAGE_HTTP_REDIRECT: True,
+}
+```
+
 
 ## Build and sign passes
 
