@@ -11,6 +11,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django_walletpass.models import Pass, Registration, Log
+from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 FORMAT = '%Y-%m-%d %H:%M:%S'
 PASS_REGISTERED = django.dispatch.Signal()
@@ -105,7 +106,9 @@ class LatestVersionViewSet(viewsets.ViewSet):
         if request.META.get('HTTP_AUTHORIZATION') != 'ApplePass %s' % pass_.authentication_token:
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # TODO: handle remote storages like S3
+        if WALLETPASS_CONF['STORAGE_HTTP_REDIRECT']:
+            return Response({}, status=status.HTTP_302_FOUND, headers={'Location': pass_.data.url})
+
         response = HttpResponse(pass_.data.read(), content_type='application/vnd.apple.pkpass')
         response['Content-Disposition'] = 'attachment; filename=pass.pkpass'
 
