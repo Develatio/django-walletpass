@@ -4,11 +4,12 @@ from hyper.tls import init_context
 from hyper.http20.exceptions import StreamResetError
 from apns2.client import APNsClient
 from apns2.credentials import Credentials
+from apns2.credentials import TokenCredentials
 from apns2.payload import Payload
 from django_walletpass.models import Registration
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
-logger = logging.getLogger('django.contrib.gis')
+logger = logging.getLogger('walletpass.services')
 
 
 class PushBackend:
@@ -30,11 +31,19 @@ class PushBackend:
         except StreamResetError as e:
             logger.error("django_walletpass StreamResetError. Bad cert or token? %s", e)
         # Errors should never pass silently.
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             # Unless explicitly silenced.
             logger.error("django_walletpass uncaught error %s", e)
 
     def get_credentials(self):
+        if WALLETPASS_CONF['PUSH_AUTH_STRATEGY'] == 'token':
+            return TokenCredentials(
+                auth_key_path=WALLETPASS_CONF['TOKEN_AUTH_KEY_PATH'],
+                auth_key_id=WALLETPASS_CONF['TOKEN_AUTH_KEY_ID'],
+                team_id=WALLETPASS_CONF['TEAM_ID'],
+            )
+
+        # legacy cert/key auth
         context = init_context(
             cert=(
                 WALLETPASS_CONF['CERT_PATH'],
