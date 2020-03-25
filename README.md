@@ -65,6 +65,21 @@ WALLETPASS = {
 }
 ```
 
+If you plan to use token JWT auth instead key/cert, use:
+
+```
+WALLETPASS = {
+    'PUSH_AUTH_STRATEGY': 'token',
+    'TOKEN_AUTH_KEY_PATH': 'path/to/your/key.p8',
+    'TOKEN_AUTH_KEY_ID': 'key_id',
+
+    'PASS_TYPE_ID': 'pass.io.develat.devpubs.example',
+    'TEAM_ID': '123456',
+    'SERVICE_URL': 'https://example.com/passes/',
+}
+```
+
+
 You should also import the urls into your site urls.
 ```
 urlpatterns = [

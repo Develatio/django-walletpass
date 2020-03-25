@@ -5,6 +5,9 @@ from django.test.signals import setting_changed
 
 FULL_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULTS = {
+    'PUSH_AUTH_STRATEGY': 'legacy',  # legacy or token
+    'TOKEN_AUTH_KEY_PATH': None,
+    'TOKEN_AUTH_KEY_ID': None,
     'CERT_PATH': None,
     'CERT_CONTENT': None,
     'KEY_CONTENT': None,
