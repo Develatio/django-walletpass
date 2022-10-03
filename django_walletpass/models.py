@@ -209,7 +209,7 @@ class PassBuilder:
             filename = f"{uuid.uuid1()}.pkpass"
 
         if self.builded_pass_content is None:
-            raise ValueError(_("Cannot not save to model: builded_pass_content is None."))
+            raise ValueError(_("Cannot save to model: builded_pass_content is None."))
         content = WalletpassContentFile(self.builded_pass_content)
         instance.data.delete()
         instance.data.save(filename, content)
