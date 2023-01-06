@@ -3,11 +3,10 @@ import base64
 import secrets
 
 from cryptography import x509
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.bindings.openssl.binding import Binding
-from cryptography.hazmat.primitives.serialization import load_pem_private_key
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.serialization import pkcs7
 from django.utils.crypto import salted_hmac
-from OpenSSL.crypto import X509
 
 copenssl = Binding.lib
 cffi = Binding.ffi
@@ -35,39 +34,18 @@ def pkcs7_sign(
             Defaults to copenssl.PKCS7_BINARY|copenssl.PKCS7_DETACHED.
     """
 
-    backend = default_backend()
-
-    # Load cert and key
-    pkey = load_pem_private_key(keycontent, key_password, backend=backend)
-    cert = x509.load_pem_x509_certificate(certcontent, backend=backend)
-
-    # Load intermediate cert and push it into < Cryptography_STACK_OF_X509 * >
-    intermediate_cert = x509.load_der_x509_certificate(wwdr_certificate, backend,)
-    certs_stack = copenssl.sk_X509_new_null()
-    # https://www.openssl.org/docs/man1.1.1/man3/sk_TYPE_push.html
-    # int sk_TYPE_push(STACK_OF(TYPE) *sk, const TYPE *ptr);
-    # return amount of certs into certs_stack, -1 on error
-    # TODO: raise on count < 1
-    _count = copenssl.sk_X509_push(
-        certs_stack, X509.from_cryptography(intermediate_cert)
+    cert = x509.load_pem_x509_certificate(certcontent)
+    key = serialization.load_pem_private_key(keycontent, key_password)
+    options = [
+        pkcs7.PKCS7Options.Binary,
+        pkcs7.PKCS7Options.DetachedSignature,
+    ]
+    return (
+        pkcs7.PKCS7SignatureBuilder()
+        .set_data(data)
+        .add_signer(cert, key, hashes.SHA256())
+        .sign(serialization.Encoding.SMIME, options)
     )
-
-    bio = backend._bytes_to_bio(data)
-    # From
-    # pyca/cryptography/src/_cffi_src/openssl/pkcs7.py
-    # PKCS7 *PKCS7_sign(X509 *, EVP_PKEY *,
-    #                   Cryptography_STACK_OF_X509 *, BIO *, int);
-    # signing-time attr is automatically added:
-    # https://www.openssl.org/docs/man1.1.1/man3/PKCS7_sign.html
-    pkcs7 = copenssl.PKCS7_sign(
-        X509.from_cryptography(cert), pkey._evp_pkey, certs_stack, bio.bio, flag,
-    )
-
-    bio_out = backend._create_mem_bio_gc()
-    copenssl.i2d_PKCS7_bio(bio_out, pkcs7)
-
-    signed_pkcs7 = backend._read_mem_bio(bio_out)
-    return signed_pkcs7
 
 
 def gen_random_token():
