@@ -280,3 +280,11 @@ builder.pass_data.update({'field': 'value'})
 builder.build()
 builder.save_to_db(pass_instance)
 ```
+
+### Run tests locally
+
+Checkout source and run from source root dir:
+
+```
+docker run -it --rm -v "$(pwd):/app" python bash -c "pip install git+https://github.com/patroqueeet/django-walletpass@upgrade/openssl; ./app/example/manage.py test django_walletpass"
+```
