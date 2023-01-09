@@ -45,6 +45,6 @@ def gen_random_token():
     rand1 = secrets.token_bytes(16)
     rand2 = secrets.token_bytes(7)
     rand2 = salted_hmac(rand1, rand2).digest()
-    part_a = base64.urlsafe_b64encode(rand2).rstrip(b"=").decode("ascii")
+    part_a = base64.urlsafe_b64encode(rand2).rstrip(b'=').decode('ascii')
     part_b = secrets.token_urlsafe(20)
     return part_b + part_a
