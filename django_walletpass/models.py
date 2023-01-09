@@ -118,8 +118,8 @@ class PassBuilder:
             for filepath in glob(os.path.join(directory, '**'), recursive=True):
                 relative_file_path = os.path.relpath(filepath, directory)
                 zip_pkpass.write(filepath, arcname=relative_file_path)
-            with open(zip_file_path, 'rb') as ffile:
-                return ffile.read()
+        with open(zip_file_path, 'rb') as ffile:
+            return ffile.read()
 
     def _load_pass_json_file_if_exists(self, directory):
         """Call self.load_pass_json_file if pass.json exist
@@ -250,8 +250,10 @@ class Pass(models.Model):
             tmp_pass_dir = os.path.join(tmpdirname, 'data.pass')
             # Put zip file into tmp dir
             zip_path = os.path.join(tmpdirname, 'walletcard.pkpass')
-            with open(zip_path, 'wb') as zip_pkpass:
-                zip_pkpass.write(self.data.read())
+            with open(zip_path, 'wb') as ffile:
+                self.data.seek(0)
+                ffile.write(self.data.read())
+
             # Extract zip file to tmp dir
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(tmp_pass_dir)
