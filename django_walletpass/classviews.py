@@ -113,8 +113,7 @@ class LatestVersionViewSet(viewsets.ViewSet):
         response['Content-Disposition'] = 'attachment; filename=pass.pkpass'
 
         response['Last-Modified'] = http_date(timegm(pass_.updated_at.utctimetuple()))
-        middleware = ConditionalGetMiddleware()
-        return middleware.process_response(request, response)
+        return ConditionalGetMiddleware(get_response=response)(request)
 
 
 # TODO: use ModelViewSet
