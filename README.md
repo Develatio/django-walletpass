@@ -128,8 +128,6 @@ WALLETPASS_CONF = {
 
 ```
 WALLETPASS_CONF = {
-    # Cert in der format.
-    'APPLE_WWDRCA_CERT_PATH': 'path/to/cert.cer',
     # Cert in pem format.
     'APPLE_WWDRCA_PEM_PATH': 'path/to/cert.pem',
 }
@@ -286,5 +284,5 @@ builder.save_to_db(pass_instance)
 Checkout source and run from source root directory
 
 ```
-docker run -it --rm -v "$(pwd):/app" python:3.8 bash -c "cd /app; python setup.py install; ./example/manage.py test django_walletpas
+docker run -it --rm -v "$(pwd):/app" python:3.8 bash -c "cd /app; python setup.py install; ./example/manage.py test django_walletpass
 ```
