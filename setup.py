@@ -10,7 +10,7 @@ with open(os.path.join(here, 'README.md'), 'r', encoding='utf-8') as ffile:
 setup(
     name='django-walletpass',
     python_requires='>=3.5.0',
-    version='1.2',
+    version='2.0',
     author='Develatio Technologies S.L.',
     author_email='contacto@develat.io',
     packages=find_packages(),
