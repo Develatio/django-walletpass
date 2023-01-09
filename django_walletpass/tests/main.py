@@ -43,7 +43,7 @@ class BuilderTestCase(TestCase):
         self.assertEqual(builder.manifest_dict, builder2.manifest_dict)
         self.assertEqual(builder.pass_data, builder2.pass_data)
 
-        builder2.pass_data.update({'organizationName': 'test'})
+        builder2.pass_data.update({"organizationName": 'test'})
         builder2.build()
         builder2.write_to_model(instance)
         instance.save()
