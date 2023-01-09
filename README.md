@@ -286,5 +286,5 @@ builder.save_to_db(pass_instance)
 Checkout source and run from source root dir after pushing your changes to fork
 
 ```
-docker run -it --rm -v "$(pwd):/app" python:3.8 bash -c "pip install git+https://<REPO_PATH>@<BRANCH>; ./app/example/manage.py test django_walletpass"
+docker run -it --rm -v "$(pwd):/app" python:3.8 bash -c "cd /app; python setup.py install; ./example/manage.py test django_walletpas
 ```
