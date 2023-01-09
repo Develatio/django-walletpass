@@ -61,7 +61,7 @@ class RegisterPassViewSet(viewsets.ViewSet):
     def create(self, request, device_library_id, pass_type_id, serial_number):
 
         pass_ = get_pass(pass_type_id, serial_number)
-        if request.META.get('HTTP_AUTHORIZATION') != 'ApplePass %s' % pass_.authentication_token:
+        if request.META.get('HTTP_AUTHORIZATION') != f"ApplePass {pass_.authentication_token}":
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
         registration = Registration.objects.filter(
             device_library_identifier=device_library_id,
@@ -81,7 +81,7 @@ class RegisterPassViewSet(viewsets.ViewSet):
 
     def destroy(self, request, device_library_id, pass_type_id, serial_number):
         pass_ = get_pass(pass_type_id, serial_number)
-        if request.META.get('HTTP_AUTHORIZATION') != 'ApplePass %s' % pass_.authentication_token:
+        if request.META.get('HTTP_AUTHORIZATION') != f"ApplePass {pass_.authentication_token}":
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
         registration = Registration.objects.filter(
             device_library_identifier=device_library_id,
@@ -103,7 +103,7 @@ class LatestVersionViewSet(viewsets.ViewSet):
     def retrieve(self, request, pass_type_id, serial_number):
         pass_ = get_pass(pass_type_id, serial_number)
 
-        if request.META.get('HTTP_AUTHORIZATION') != 'ApplePass %s' % pass_.authentication_token:
+        if request.META.get('HTTP_AUTHORIZATION') != f"ApplePass {pass_.authentication_token}":
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
 
         if WALLETPASS_CONF['STORAGE_HTTP_REDIRECT']:

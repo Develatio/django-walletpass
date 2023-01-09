@@ -8,10 +8,8 @@ import zipfile
 from glob import glob
 from django.core.exceptions import ValidationError
 from django.utils.module_loading import import_string
-from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
 from django_walletpass import crypto
 from django_walletpass.storage import WalletPassStorage
 from django_walletpass.files import WalletpassContentFile
@@ -54,16 +52,16 @@ class PassBuilder:
                 continue
             if not os.path.isfile(absolute_filepath):
                 continue
-            filecontent = open(absolute_filepath, 'rb').read()
-            # Add files to manifest
-            self.manifest_dict[relative_file_path] = hashlib.sha1(filecontent).hexdigest()
-            dest_abs_filepath = os.path.join(tmp_pass_dir, relative_file_path)
-            dest_abs_dirpath = os.path.dirname(dest_abs_filepath)
-            if not os.path.exists(dest_abs_dirpath):
-                os.makedirs(dest_abs_dirpath)
-            ff = open(dest_abs_filepath, 'wb')
-            ff.write(filecontent)
-            ff.close()
+            with open(absolute_filepath, 'rb') as file:
+                filecontent = file.read()
+                # Add files to manifest
+                self.manifest_dict[relative_file_path] = hashlib.sha1(filecontent).hexdigest()
+                dest_abs_filepath = os.path.join(tmp_pass_dir, relative_file_path)
+                dest_abs_dirpath = os.path.dirname(dest_abs_filepath)
+                if not os.path.exists(dest_abs_dirpath):
+                    os.makedirs(dest_abs_dirpath)
+                with open(dest_abs_filepath, 'wb') as ffile:
+                    ffile.write(filecontent)
 
     def _write_extra_files(self, tmp_pass_dir):
         """Write extra files contained in self.extra_files into tmp dir
@@ -78,9 +76,8 @@ class PassBuilder:
             dest_abs_dirpath = os.path.dirname(dest_abs_filepath)
             if not os.path.exists(dest_abs_dirpath):
                 os.makedirs(dest_abs_dirpath)
-            ff = open(dest_abs_filepath, 'wb')
-            ff.write(filecontent)
-            ff.close()
+            with open(dest_abs_filepath, 'wb') as ffile:
+                ffile.write(filecontent)
 
     def _write_pass_json(self, tmp_pass_dir):
         """Write content of self.pass_data to pass.json (in JSON format)
@@ -92,9 +89,8 @@ class PassBuilder:
         pass_json_bytes = bytes(pass_json, 'utf8')
         # Add pass.json to manifest
         self.manifest_dict['pass.json'] = hashlib.sha1(pass_json_bytes).hexdigest()
-        ff = open(os.path.join(tmp_pass_dir, 'pass.json'), 'wb')
-        ff.write(pass_json_bytes)
-        ff.close()
+        with open(os.path.join(tmp_pass_dir, 'pass.json'), 'wb') as ffile:
+            ffile.write(pass_json_bytes)
 
     def _write_manifest_json_and_signature(self, tmp_pass_dir):
         """Write the content of self.manifest_dict into manifest.json
@@ -104,9 +100,8 @@ class PassBuilder:
         """
         manifest_json = json.dumps(self.manifest_dict)
         manifest_json_bytes = bytes(manifest_json, 'utf8')
-        ff = open(os.path.join(tmp_pass_dir, 'manifest.json'), 'wb')
-        ff.write(manifest_json_bytes)
-        ff.close()
+        with open(os.path.join(tmp_pass_dir, 'manifest.json'), 'wb') as ffile:
+            ffile.write(manifest_json_bytes)
         signature_content = crypto.pkcs7_sign(
             certcontent=WALLETPASS_CONF['CERT_CONTENT'],
             keycontent=WALLETPASS_CONF['KEY_CONTENT'],
@@ -114,18 +109,17 @@ class PassBuilder:
             data=manifest_json_bytes,
             key_password=WALLETPASS_CONF['KEY_PASSWORD'],
         )
-        ff = open(os.path.join(tmp_pass_dir, 'signature'), 'wb')
-        ff.write(signature_content)
-        ff.close()
+        with open(os.path.join(tmp_pass_dir, 'signature'), 'wb') as ffile:
+            ffile.write(signature_content)
 
     def _zip_all(self, directory):
         zip_file_path = os.path.join(directory, '..', 'walletcard.pkpass')
-        zip_pkpass = zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED)
-        for filepath in glob(os.path.join(directory, '**'), recursive=True):
-            relative_file_path = os.path.relpath(filepath, directory)
-            zip_pkpass.write(filepath, arcname=relative_file_path)
-        zip_pkpass.close()
-        return open(zip_file_path, 'rb').read()
+        with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zip_pkpass:
+            for filepath in glob(os.path.join(directory, '**'), recursive=True):
+                relative_file_path = os.path.relpath(filepath, directory)
+                zip_pkpass.write(filepath, arcname=relative_file_path)
+        with open(zip_file_path, 'rb') as ffile:
+            return ffile.read()
 
     def _load_pass_json_file_if_exists(self, directory):
         """Call self.load_pass_json_file if pass.json exist
@@ -156,14 +150,15 @@ class PassBuilder:
         self._clean_builded_pass_content()
         self.validate()
 
-    def load_pass_json_file(self, dir):
+    def load_pass_json_file(self, directory):
         """Load json file without test if exists.
 
         Args:
             dir (str): path where resides the pass.json
         """
-        json_data = open(os.path.join(dir, 'pass.json'), 'r').read()
-        self.pass_data = json.loads(json_data)
+        with open(os.path.join(directory, 'pass.json'), 'rb') as ffile:
+            json_data = ffile.read()
+            self.pass_data = json.loads(json_data)
 
     def pre_build_pass_data(self):
         """Update self.pass_data with self.pass_data_required content
@@ -255,9 +250,10 @@ class Pass(models.Model):
             tmp_pass_dir = os.path.join(tmpdirname, 'data.pass')
             # Put zip file into tmp dir
             zip_path = os.path.join(tmpdirname, 'walletcard.pkpass')
-            zip_pkpass = open(zip_path, 'wb')
-            zip_pkpass.write(self.data.read())
-            zip_pkpass.close()
+            with open(zip_path, 'wb') as ffile:
+                self.data.seek(0)
+                ffile.write(self.data.read())
+
             # Extract zip file to tmp dir
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(tmp_pass_dir)
@@ -272,7 +268,8 @@ class Pass(models.Model):
                     continue
                 if not os.path.isfile(filepath):
                     continue
-                builder.add_file(relative_file_path, open(filepath, 'rb').read())
+                with open(filepath, 'rb') as ffile:
+                    builder.add_file(relative_file_path, ffile.read())
         # Load of these fields due to that those fields are ignored
         # on pass.json loading
         builder.pass_data_required.update({
@@ -290,7 +287,7 @@ class Pass(models.Model):
         unique_together = (
             'pass_type_identifier',
             'serial_number',
-        ),
+        )
 
 
 class Registration(models.Model):
