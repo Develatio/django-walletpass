@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-with open(os.path.join(here, 'README.md')) as ffile:
+with open(os.path.join(here, 'README.md'), 'r', encoding='utf-8') as ffile:
     README = ffile.read()
 
 setup(

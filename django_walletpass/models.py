@@ -156,7 +156,7 @@ class PassBuilder:
         Args:
             dir (str): path where resides the pass.json
         """
-        with open(os.path.join(directory, 'pass.json'), 'r') as ffile:
+        with open(os.path.join(directory, 'pass.json'), 'rb') as ffile:
             json_data = ffile.read()
             self.pass_data = json.loads(json_data)
 
