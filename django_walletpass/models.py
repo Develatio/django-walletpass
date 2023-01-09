@@ -114,13 +114,12 @@ class PassBuilder:
 
     def _zip_all(self, directory):
         zip_file_path = os.path.join(directory, '..', 'walletcard.pkpass')
-        zip_pkpass = zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED)
-        for filepath in glob(os.path.join(directory, '**'), recursive=True):
-            relative_file_path = os.path.relpath(filepath, directory)
-            zip_pkpass.write(filepath, arcname=relative_file_path)
-        zip_pkpass.close()
-        with open(zip_file_path, 'rb') as ffile:
-            return ffile.read()
+        with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zip_pkpass:
+            for filepath in glob(os.path.join(directory, '**'), recursive=True):
+                relative_file_path = os.path.relpath(filepath, directory)
+                zip_pkpass.write(filepath, arcname=relative_file_path)
+            with open(zip_file_path, 'rb') as ffile:
+                return ffile.read()
 
     def _load_pass_json_file_if_exists(self, directory):
         """Call self.load_pass_json_file if pass.json exist
@@ -151,13 +150,13 @@ class PassBuilder:
         self._clean_builded_pass_content()
         self.validate()
 
-    def load_pass_json_file(self, dir):
+    def load_pass_json_file(self, directory):
         """Load json file without test if exists.
 
         Args:
             dir (str): path where resides the pass.json
         """
-        with open(os.path.join(dir, 'pass.json'), 'r') as ffile:
+        with open(os.path.join(directory, 'pass.json'), 'r') as ffile:
             json_data = ffile.read()
             self.pass_data = json.loads(json_data)
 

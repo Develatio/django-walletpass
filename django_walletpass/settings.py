@@ -5,11 +5,11 @@ from django.test.signals import setting_changed
 
 FULL_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-with open(os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.pem'), 'rb') as ffile:
-    wwdrca_pem_content = ffile.read()
+with open(os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.pem'), 'rb') as _ffile:
+    wwdrca_pem_content = _ffile.read()
 
-with open(os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.cer'), 'rb') as ffile:
-    wwdrca_content = ffile.read()
+with open(os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.cer'), 'rb') as _ffile:
+    wwdrca_content = _ffile.read()
 
 DEFAULTS = {
     'PUSH_AUTH_STRATEGY': 'legacy',  # legacy or token
@@ -57,7 +57,7 @@ dwpconfig = ConfigManager(DEFAULTS)
 dwpconfig.update_conf()
 
 
-def update_conf(*args, **kwargs):
+def update_conf(*args, **kwargs):  # pylint: disable=unused-argument
     if kwargs['setting'] == 'WALLETPASS':
         dwpconfig.update_conf()
 
