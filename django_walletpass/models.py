@@ -110,7 +110,7 @@ class PassBuilder:
         signature_content = crypto.pkcs7_sign(
             certcontent=WALLETPASS_CONF['CERT_CONTENT'],
             keycontent=WALLETPASS_CONF['KEY_CONTENT'],
-            wwdr_certificate=WALLETPASS_CONF['WWDRCA_CONTENT'],
+            wwdr_certificate=WALLETPASS_CONF['WWDRCA_PEM_CONTENT'],
             data=manifest_json_bytes,
             key_password=WALLETPASS_CONF['KEY_PASSWORD'],
         )

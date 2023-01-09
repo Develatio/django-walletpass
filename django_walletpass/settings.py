@@ -11,12 +11,16 @@ DEFAULTS = {
     'CERT_PATH': None,
     'CERT_CONTENT': None,
     'KEY_CONTENT': None,
-    'WWDRCA_CONTENT': None,
     'KEY_PATH': None,
     'KEY_PASSWORD': None,
     'APPLE_WWDRCA_CERT_PATH': os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.cer'),
-    'WWDRCA_CONTENT': open(os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.cer'), 'rb').read(),
+    'WWDRCA_CONTENT': open(
+        os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.cer'), 'rb'
+    ).read(),
     'APPLE_WWDRCA_PEM_PATH': os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.pem'),
+    'WWDRCA_PEM_CONTENT': open(
+        os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.pem'), 'rb'
+    ).read(),
     'PASS_TYPE_ID': None,
     'TEAM_ID': None,
     'SERVICE_URL': None,
@@ -36,8 +40,9 @@ class ConfigManager(UserDict):
             new['CERT_CONTENT'] = open(new['CERT_PATH'], 'rb').read()
         if 'KEY_PATH' in new:
             new['KEY_CONTENT'] = open(new['KEY_PATH'], 'rb').read()
-        if 'APPLE_WWDRCA_CERT_PATH' in new:
-            new['WWDRCA_CONTENT'] = open(new['APPLE_WWDRCA_CERT_PATH'], 'rb').read()
+        if 'APPLE_WWDRCA_PEM_PATH' in new:
+            new['WWDRCA_PEM_CONTENT'] = open(new['APPLE_WWDRCA_PEM_PATH'], 'rb').read()
+
         self.data.update(new)
 
 
