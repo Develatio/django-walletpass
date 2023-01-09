@@ -5,9 +5,9 @@
 # paths.
 ignore=migrations,docs
 
-# Add files or directories matching the regex patterns to the blacklist. The
-# regex matches against base names, not paths.
-ignore-patterns=
+# Add files or directories matching the regex patterns to the ignore-list.
+ # The regex matches against paths.
+ignore-paths=example, django_walletpass/migrations
 
 jobs=0
 
