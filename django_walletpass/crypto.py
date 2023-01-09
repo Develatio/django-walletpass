@@ -11,16 +11,11 @@ from django.utils.crypto import salted_hmac
 copenssl = Binding.lib
 cffi = Binding.ffi
 
-
 # SMIME isn't supported by pyca/cryptography:
 # https://github.com/pyca/cryptography/issues/1621
+# adjusted with latest cryptography code from https://github.com/devartis/passbook/pull/60/files
 def pkcs7_sign(
-    certcontent,
-    keycontent,
-    wwdr_certificate,
-    data,
-    key_password=None,
-    flag=copenssl.PKCS7_BINARY | copenssl.PKCS7_DETACHED,
+    certcontent, keycontent, wwdr_certificate, data, key_password=None,
 ):
     """Sign data with PKCS#7.
 
@@ -30,21 +25,19 @@ def pkcs7_sign(
         wwdr_certificate (bytes): Content of Intermediate cert file
         data (bytes): Data to be signed
         key_password (bytes, optional): key file passwd. Defaults to None.
-        flag (int, optional): Flags to be passed to PKCS7_sign C lib.
-            Defaults to copenssl.PKCS7_BINARY|copenssl.PKCS7_DETACHED.
     """
 
     cert = x509.load_pem_x509_certificate(certcontent)
-    key = serialization.load_pem_private_key(keycontent, key_password)
-    options = [
-        pkcs7.PKCS7Options.Binary,
-        pkcs7.PKCS7Options.DetachedSignature,
-    ]
+    priv_key = serialization.load_pem_private_key(keycontent, password=key_password)
+    wwdr_cert = x509.load_pem_x509_certificate(wwdr_certificate)
+
+    options = [pkcs7.PKCS7Options.DetachedSignature]
     return (
         pkcs7.PKCS7SignatureBuilder()
         .set_data(data)
-        .add_signer(cert, key, hashes.SHA256())
-        .sign(serialization.Encoding.SMIME, options)
+        .add_signer(cert, priv_key, hashes.SHA256())
+        .add_certificate(wwdr_cert)
+        .sign(serialization.Encoding.DER, options)
     )
 
 
