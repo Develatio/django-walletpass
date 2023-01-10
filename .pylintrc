@@ -5,9 +5,9 @@
 # paths.
 ignore=migrations,docs
 
-# Add files or directories matching the regex patterns to the blacklist. The
-# regex matches against base names, not paths.
-ignore-patterns=
+# Add files or directories matching the regex patterns to the ignore-list.
+ # The regex matches against paths.
+ignore-paths=example, django_walletpass/migrations
 
 jobs=0
 
@@ -36,12 +36,10 @@ unsafe-load-any-extension=no
 # all. Valid levels: HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED.
 confidence=
 
-disable=print-statement,
-      anomalous-backslash-in-string,
+disable=anomalous-backslash-in-string,
       no-member,
       missing-docstring,
       too-few-public-methods,
-      no-self-use,
       too-many-ancestors,
 
       #This should be enabled
@@ -116,8 +114,8 @@ max-module-lines=1000
 # separator` is used to allow tabulation in dicts, etc.: {1  : 1,\n222: 2}.
 # `trailing-comma` allows a space between comma and closing bracket: (a, ).
 # `empty-line` allows space-only lines.
-no-space-check=trailing-comma,
-               dict-separator
+# no-space-check=trailing-comma,
+#                dict-separator
 
 # Allow the body of a class to be on the same line as the declaration if body
 # contains single statement.

@@ -1,13 +1,16 @@
 import os
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.md')).read()
+
+with open(os.path.join(here, 'README.md'), 'r', encoding='utf-8') as ffile:
+    README = ffile.read()
 
 setup(
     name='django-walletpass',
     python_requires='>=3.5.0',
-    version='1.2',
+    version='2.0',
     author='Develatio Technologies S.L.',
     author_email='contacto@develat.io',
     packages=find_packages(),
@@ -18,6 +21,7 @@ setup(
         'Django>=2.0',
         'cryptography>=2.4.2',
         'apns2>=0.7.1',
+        'pyopenssl',
         'djangorestframework>=3.8',
     ],
     description='Django .pkpass builder, server and push notifications',
