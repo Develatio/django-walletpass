@@ -13,7 +13,7 @@ from rest_framework.permissions import AllowAny
 from django_walletpass.models import Pass, Registration, Log
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
-FORMAT = '%Y-%m-%d %H:%M:%S'
+FORMAT = '%Y-%m-%d %H:%M:%S%z'
 PASS_REGISTERED = django.dispatch.Signal()
 PASS_UNREGISTERED = django.dispatch.Signal()
 
