@@ -90,13 +90,13 @@ django-walletpass signals certain events that might come handy in your
 application.
 
 ```
-from django_walletpass.views import pass_registered, pass_unregistered
+from django_walletpass.classviews import PASS_REGISTERED, PASS_UNREGISTERED
 
-@receiver(pass_registered)
+@receiver(PASS_REGISTERED)
 def pass_registered(sender, **kwargs):
     pass
 
-@receiver(pass_unregistered)
+@receiver(PASS_UNREGISTERED)
 def pass_unregistered(sender, **kwargs):
     pass
 ```
