@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django_walletpass.models import Pass, Registration, Log
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
+from pytz.exceptions import NonExistentTimeError
 
 FORMAT = '%Y-%m-%d %H:%M:%S'
 PASS_REGISTERED = django.dispatch.Signal()
@@ -37,7 +38,12 @@ class RegistrationsViewSet(viewsets.ViewSet):
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         if 'passesUpdatedSince' in request.GET:
-            passes = passes.filter(updated_at__gt=datetime.strptime(request.GET['passesUpdatedSince'], FORMAT))
+            try:
+                dt = datetime.strptime(request.GET['passesUpdatedSince'], FORMAT)
+                passes = passes.filter(updated_at__gt=dt)
+            except NonExistentTimeError:
+                dt = dt.replace(hour=0, minute=0)
+                passes = passes.filter(updated_at__gt=dt)
 
         if passes:
             last_updated = passes.aggregate(Max('updated_at'))['updated_at__max']
