@@ -1,70 +1,46 @@
+import asyncio
 import logging
 from ssl import SSLError
-from hyper.tls import init_context
-from hyper.http20.exceptions import StreamResetError
-from apns2.client import APNsClient
-from apns2.credentials import Credentials
-from apns2.credentials import TokenCredentials
-from apns2.payload import Payload
+
+from aioapns import APNs, NotificationRequest
+from aioapns.exceptions import ConnectionClosed, ConnectionError
 from django_walletpass.models import Registration
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
-logger = logging.getLogger('walletpass.services')
+logger = logging.getLogger("walletpass.services")
 
 
 class PushBackend:
-    def push_notification(self, credentials, push_sandbox, pass_type_id, push_token):
-        payload = Payload()
+    def __init__(self):
+        self.loop = asyncio.get_event_loop()
+
+    async def push_notification(self, client, token):
+
         try:
-            client = APNsClient(
-                credentials,
-                use_sandbox=push_sandbox,
-                use_alternative_port=False,
-            )
-            client.send_notification(
-                push_token,
-                payload,
-                pass_type_id,
-            )
+            request = NotificationRequest(device_token=token, message={"aps": {}},)
+            await client.send_notification(request)
+
         except SSLError as e:
             logger.error("django_walletpass SSLError: %s", e)
-        except StreamResetError as e:
+        except (ConnectionError, ConnectionClosed) as e:
             logger.error("django_walletpass StreamResetError. Bad cert or token? %s", e)
         # Errors should never pass silently.
         except Exception as e:  # pylint: disable=broad-except
             # Unless explicitly silenced.
             logger.error("django_walletpass uncaught error %s", e)
 
-    def get_credentials(self):
-        if WALLETPASS_CONF['PUSH_AUTH_STRATEGY'] == 'token':
-            return TokenCredentials(
-                auth_key_path=WALLETPASS_CONF['TOKEN_AUTH_KEY_PATH'],
-                auth_key_id=WALLETPASS_CONF['TOKEN_AUTH_KEY_ID'],
-                team_id=WALLETPASS_CONF['TEAM_ID'],
-            )
-
-        # legacy cert/key auth
-        context = init_context(
-            cert=(
-                WALLETPASS_CONF['CERT_PATH'],
-                WALLETPASS_CONF['KEY_PATH'],
-            ),
-            # cert_path=WALLETPASS_CONF['APPLE_WWDRCA_PEM_PATH'],
-            cert_password=WALLETPASS_CONF['KEY_PASSWORD'],
-        )
-
-        return Credentials(context)
-
     def push_notification_with_token(self, token):
-        self.push_notification(
-            self.get_credentials(),
-            push_sandbox=WALLETPASS_CONF['PUSH_SANDBOX'],
-            pass_type_id=WALLETPASS_CONF['PASS_TYPE_ID'],
-            push_token=token,
+        client = APNs(
+            key=WALLETPASS_CONF["TOKEN_AUTH_KEY_PATH"],
+            key_id=WALLETPASS_CONF["TOKEN_AUTH_KEY_ID"],
+            team_id=WALLETPASS_CONF["TEAM_ID"],
+            topic=WALLETPASS_CONF["PASS_TYPE_ID"],
+            use_sandbox=WALLETPASS_CONF["PUSH_SANDBOX"],
         )
+        return self.loop.run_until_complete(self.push_notification(client, token))
 
     def push_notification_from_instance(self, registration_instance):
-        self.push_notification_with_token(registration_instance.push_token)
+        return self.push_notification_with_token(registration_instance.push_token)
 
     def push_notification_from_pk(self, registration_pk):
         registration = Registration.objects.get(pk=registration_pk)

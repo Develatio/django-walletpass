@@ -1,28 +1,30 @@
-import os
-import uuid
 import hashlib
 import json
-import tempfile
+import os
 import secrets
+import tempfile
+import uuid
 import zipfile
 from glob import glob
+
+from asgiref.sync import sync_to_async
 from django.core.exceptions import ValidationError
-from django.utils.module_loading import import_string
 from django.db import models
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from django_walletpass import crypto
-from django_walletpass.storage import WalletPassStorage
 from django_walletpass.files import WalletpassContentFile
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
+from django_walletpass.storage import WalletPassStorage
 
 
 class PassBuilder:
     pass_data = {}
     pass_data_required = {
-        "passTypeIdentifier": WALLETPASS_CONF['PASS_TYPE_ID'],
+        "passTypeIdentifier": WALLETPASS_CONF["PASS_TYPE_ID"],
         "serialNumber": None,
-        "teamIdentifier": WALLETPASS_CONF['TEAM_ID'],
-        "webServiceURL": WALLETPASS_CONF['SERVICE_URL'],
+        "teamIdentifier": WALLETPASS_CONF["TEAM_ID"],
+        "webServiceURL": WALLETPASS_CONF["SERVICE_URL"],
         "authenticationToken": None,
     }
     directory = None
@@ -34,10 +36,12 @@ class PassBuilder:
         self.directory = directory
         if directory is not None:
             self._load_pass_json_file_if_exists(directory)
-        self.pass_data_required.update({
-            "serialNumber": secrets.token_urlsafe(20),
-            "authenticationToken": crypto.gen_random_token(),
-        })
+        self.pass_data_required.update(
+            {
+                "serialNumber": secrets.token_urlsafe(20),
+                "authenticationToken": crypto.gen_random_token(),
+            }
+        )
 
     def _copy_dir_files(self, tmp_pass_dir):
         """Copy files from provided base dir to temporal dir
@@ -45,22 +49,26 @@ class PassBuilder:
         Args:
             tmp_pass_dir (str): temporal dir path
         """
-        for absolute_filepath in glob(os.path.join(self.directory, '**'), recursive=True):
+        for absolute_filepath in glob(
+            os.path.join(self.directory, "**"), recursive=True
+        ):
             filename = os.path.basename(absolute_filepath)
             relative_file_path = os.path.relpath(absolute_filepath, self.directory)
-            if filename == '.DS_Store':
+            if filename == ".DS_Store":
                 continue
             if not os.path.isfile(absolute_filepath):
                 continue
-            with open(absolute_filepath, 'rb') as file:
+            with open(absolute_filepath, "rb") as file:
                 filecontent = file.read()
                 # Add files to manifest
-                self.manifest_dict[relative_file_path] = hashlib.sha1(filecontent).hexdigest()
+                self.manifest_dict[relative_file_path] = hashlib.sha1(
+                    filecontent
+                ).hexdigest()
                 dest_abs_filepath = os.path.join(tmp_pass_dir, relative_file_path)
                 dest_abs_dirpath = os.path.dirname(dest_abs_filepath)
                 if not os.path.exists(dest_abs_dirpath):
                     os.makedirs(dest_abs_dirpath)
-                with open(dest_abs_filepath, 'wb') as ffile:
+                with open(dest_abs_filepath, "wb") as ffile:
                     ffile.write(filecontent)
 
     def _write_extra_files(self, tmp_pass_dir):
@@ -71,12 +79,14 @@ class PassBuilder:
         """
         for relative_file_path, filecontent in self.extra_files.items():
             # Add files to manifest
-            self.manifest_dict[relative_file_path] = hashlib.sha1(filecontent).hexdigest()
+            self.manifest_dict[relative_file_path] = hashlib.sha1(
+                filecontent
+            ).hexdigest()
             dest_abs_filepath = os.path.join(tmp_pass_dir, relative_file_path)
             dest_abs_dirpath = os.path.dirname(dest_abs_filepath)
             if not os.path.exists(dest_abs_dirpath):
                 os.makedirs(dest_abs_dirpath)
-            with open(dest_abs_filepath, 'wb') as ffile:
+            with open(dest_abs_filepath, "wb") as ffile:
                 ffile.write(filecontent)
 
     def _write_pass_json(self, tmp_pass_dir):
@@ -86,10 +96,10 @@ class PassBuilder:
             tmp_pass_dir (str): temporal dir path where pass.json will be saved
         """
         pass_json = json.dumps(self.pass_data)
-        pass_json_bytes = bytes(pass_json, 'utf8')
+        pass_json_bytes = bytes(pass_json, "utf8")
         # Add pass.json to manifest
-        self.manifest_dict['pass.json'] = hashlib.sha1(pass_json_bytes).hexdigest()
-        with open(os.path.join(tmp_pass_dir, 'pass.json'), 'wb') as ffile:
+        self.manifest_dict["pass.json"] = hashlib.sha1(pass_json_bytes).hexdigest()
+        with open(os.path.join(tmp_pass_dir, "pass.json"), "wb") as ffile:
             ffile.write(pass_json_bytes)
 
     def _write_manifest_json_and_signature(self, tmp_pass_dir):
@@ -99,26 +109,26 @@ class PassBuilder:
             tmp_pass_dir (str): temporal dir path
         """
         manifest_json = json.dumps(self.manifest_dict)
-        manifest_json_bytes = bytes(manifest_json, 'utf8')
-        with open(os.path.join(tmp_pass_dir, 'manifest.json'), 'wb') as ffile:
+        manifest_json_bytes = bytes(manifest_json, "utf8")
+        with open(os.path.join(tmp_pass_dir, "manifest.json"), "wb") as ffile:
             ffile.write(manifest_json_bytes)
         signature_content = crypto.pkcs7_sign(
-            certcontent=WALLETPASS_CONF['CERT_CONTENT'],
-            keycontent=WALLETPASS_CONF['KEY_CONTENT'],
-            wwdr_certificate=WALLETPASS_CONF['WWDRCA_PEM_CONTENT'],
+            certcontent=WALLETPASS_CONF["CERT_CONTENT"],
+            keycontent=WALLETPASS_CONF["KEY_CONTENT"],
+            wwdr_certificate=WALLETPASS_CONF["WWDRCA_PEM_CONTENT"],
             data=manifest_json_bytes,
-            key_password=WALLETPASS_CONF['KEY_PASSWORD'],
+            key_password=WALLETPASS_CONF["KEY_PASSWORD"],
         )
-        with open(os.path.join(tmp_pass_dir, 'signature'), 'wb') as ffile:
+        with open(os.path.join(tmp_pass_dir, "signature"), "wb") as ffile:
             ffile.write(signature_content)
 
     def _zip_all(self, directory):
-        zip_file_path = os.path.join(directory, '..', 'walletcard.pkpass')
-        with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zip_pkpass:
-            for filepath in glob(os.path.join(directory, '**'), recursive=True):
+        zip_file_path = os.path.join(directory, "..", "walletcard.pkpass")
+        with zipfile.ZipFile(zip_file_path, "w", zipfile.ZIP_DEFLATED) as zip_pkpass:
+            for filepath in glob(os.path.join(directory, "**"), recursive=True):
                 relative_file_path = os.path.relpath(filepath, directory)
                 zip_pkpass.write(filepath, arcname=relative_file_path)
-        with open(zip_file_path, 'rb') as ffile:
+        with open(zip_file_path, "rb") as ffile:
             return ffile.read()
 
     def _load_pass_json_file_if_exists(self, directory):
@@ -127,7 +137,7 @@ class PassBuilder:
         Args:
             directory (str): directory where pass.json resides
         """
-        if os.path.isfile(os.path.join(directory, 'pass.json')):
+        if os.path.isfile(os.path.join(directory, "pass.json")):
             self.load_pass_json_file(directory)
 
     def _clean_manifest(self):
@@ -156,22 +166,20 @@ class PassBuilder:
         Args:
             dir (str): path where resides the pass.json
         """
-        with open(os.path.join(directory, 'pass.json'), 'rb') as ffile:
+        with open(os.path.join(directory, "pass.json"), "rb") as ffile:
             json_data = ffile.read()
             self.pass_data = json.loads(json_data)
 
     def pre_build_pass_data(self):
-        """Update self.pass_data with self.pass_data_required content
-        """
+        """Update self.pass_data with self.pass_data_required content"""
         self.pass_data.update(self.pass_data_required)
 
     def build(self):
-        """Build .pkpass file
-        """
+        """Build .pkpass file"""
         self.clean()
         with tempfile.TemporaryDirectory() as tmpdirname:
-            os.mkdir(os.path.join(tmpdirname, 'data.pass'))
-            tmp_pass_dir = os.path.join(tmpdirname, 'data.pass')
+            os.mkdir(os.path.join(tmpdirname, "data.pass"))
+            tmp_pass_dir = os.path.join(tmpdirname, "data.pass")
             if self.directory:
                 self._copy_dir_files(tmp_pass_dir)
             self._write_extra_files(tmp_pass_dir)
@@ -194,9 +202,13 @@ class PassBuilder:
         if instance is None:
             instance = Pass()
 
-        setattr(instance, 'pass_type_identifier', WALLETPASS_CONF['PASS_TYPE_ID'])
-        setattr(instance, 'serial_number', self.pass_data_required.get('serialNumber'))
-        setattr(instance, 'authentication_token', self.pass_data_required.get('authenticationToken'))
+        setattr(instance, "pass_type_identifier", WALLETPASS_CONF["PASS_TYPE_ID"])
+        setattr(instance, "serial_number", self.pass_data_required.get("serialNumber"))
+        setattr(
+            instance,
+            "authentication_token",
+            self.pass_data_required.get("authenticationToken"),
+        )
 
         if instance.data.name:
             filename = os.path.basename(instance.data.name)
@@ -219,38 +231,43 @@ class Pass(models.Model):
     """
     Pass instance
     """
+
     pass_type_identifier = models.CharField(max_length=150)
     serial_number = models.CharField(max_length=150)
     authentication_token = models.CharField(max_length=150)
     data = models.FileField(
-        upload_to=WALLETPASS_CONF['UPLOAD_TO'],
-        storage=WalletPassStorage(),
+        upload_to=WALLETPASS_CONF["UPLOAD_TO"], storage=WalletPassStorage(),
     )
     updated_at = models.DateTimeField(auto_now=True)
 
+    def get_registrations(self):
+        return self.registrations.all()
+
     def push_notification(self):
-        klass = import_string(WALLETPASS_CONF['WALLETPASS_PUSH_CLASS'])
+        klass = import_string(WALLETPASS_CONF["WALLETPASS_PUSH_CLASS"])
         push_module = klass()
-        for registration in self.registrations.all():
+        for registration in self.get_registrations():
             push_module.push_notification_from_instance(registration)
 
     def new_pass_builder(self, directory=None):
         builder = PassBuilder(directory)
-        builder.pass_data_required.update({
-            "passTypeIdentifier": self.pass_type_identifier,
-            "serialNumber": self.serial_number,
-            "authenticationToken": self.authentication_token,
-        })
+        builder.pass_data_required.update(
+            {
+                "passTypeIdentifier": self.pass_type_identifier,
+                "serialNumber": self.serial_number,
+                "authenticationToken": self.authentication_token,
+            }
+        )
         return builder
 
     def get_pass_builder(self):
         builder = PassBuilder()
         with tempfile.TemporaryDirectory() as tmpdirname:
-            os.mkdir(os.path.join(tmpdirname, 'data.pass'))
-            tmp_pass_dir = os.path.join(tmpdirname, 'data.pass')
+            os.mkdir(os.path.join(tmpdirname, "data.pass"))
+            tmp_pass_dir = os.path.join(tmpdirname, "data.pass")
             # Put zip file into tmp dir
-            zip_path = os.path.join(tmpdirname, 'walletcard.pkpass')
-            with open(zip_path, 'wb') as ffile:
+            zip_path = os.path.join(tmpdirname, "walletcard.pkpass")
+            with open(zip_path, "wb") as ffile:
                 self.data.seek(0)
                 ffile.write(self.data.read())
 
@@ -258,25 +275,27 @@ class Pass(models.Model):
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(tmp_pass_dir)
             # Populate builder with zip content
-            for filepath in glob(os.path.join(tmp_pass_dir, '**'), recursive=True):
+            for filepath in glob(os.path.join(tmp_pass_dir, "**"), recursive=True):
                 filename = os.path.basename(filepath)
                 relative_file_path = os.path.relpath(filepath, tmp_pass_dir)
-                if filename == 'pass.json':
+                if filename == "pass.json":
                     builder.load_pass_json_file(tmp_pass_dir)
                     continue
-                if relative_file_path in ['signature', 'manifest.json', '.', '..']:
+                if relative_file_path in ["signature", "manifest.json", ".", ".."]:
                     continue
                 if not os.path.isfile(filepath):
                     continue
-                with open(filepath, 'rb') as ffile:
+                with open(filepath, "rb") as ffile:
                     builder.add_file(relative_file_path, ffile.read())
         # Load of these fields due to that those fields are ignored
         # on pass.json loading
-        builder.pass_data_required.update({
-            "passTypeIdentifier": self.pass_type_identifier,
-            "serialNumber": self.serial_number,
-            "authenticationToken": self.authentication_token,
-        })
+        builder.pass_data_required.update(
+            {
+                "passTypeIdentifier": self.pass_type_identifier,
+                "serialNumber": self.serial_number,
+                "authenticationToken": self.authentication_token,
+            }
+        )
         return builder
 
     def __unicode__(self):
@@ -285,8 +304,8 @@ class Pass(models.Model):
     class Meta:
         verbose_name_plural = "passes"
         unique_together = (
-            'pass_type_identifier',
-            'serial_number',
+            "pass_type_identifier",
+            "serial_number",
         )
 
 
@@ -294,12 +313,11 @@ class Registration(models.Model):
     """
     Registration of a Pass on a device
     """
+
     device_library_identifier = models.CharField(max_length=150)
     push_token = models.CharField(max_length=150)
     pazz = models.ForeignKey(
-        Pass,
-        on_delete=models.CASCADE,
-        related_name='registrations',
+        Pass, on_delete=models.CASCADE, related_name="registrations",
     )
 
     def __unicode__(self):
@@ -310,6 +328,7 @@ class Log(models.Model):
     """
     Log message sent by a device
     """
+
     message = models.TextField()
 
     def __unicode__(self):
