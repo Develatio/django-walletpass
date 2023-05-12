@@ -1,6 +1,7 @@
+from unittest import mock
 from django.test import TestCase
 from django_walletpass import crypto
-from django_walletpass.models import PassBuilder
+from django_walletpass.models import Pass, PassBuilder, Registration
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 
