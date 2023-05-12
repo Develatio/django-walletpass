@@ -7,7 +7,7 @@ from aioapns.exceptions import ConnectionClosed, ConnectionError
 from django_walletpass.models import Registration
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
-logger = logging.getLogger("walletpass.services")
+logger = logging.getLogger('walletpass.services')
 
 
 class PushBackend:
