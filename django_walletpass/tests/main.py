@@ -1,19 +1,17 @@
-from unittest import mock
-
 from django.test import TestCase
 from django_walletpass import crypto
-from django_walletpass.models import Pass, PassBuilder, Registration
+from django_walletpass.models import PassBuilder
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 
 class CryptoTestCase(TestCase):
     def test_smime_sign(self):
         crypto.pkcs7_sign(
-            certcontent=WALLETPASS_CONF["CERT_CONTENT"],
-            keycontent=WALLETPASS_CONF["KEY_CONTENT"],
-            wwdr_certificate=WALLETPASS_CONF["WWDRCA_PEM_CONTENT"],
-            data=b"data to be signed",
-            key_password=WALLETPASS_CONF["KEY_PASSWORD"],
+            certcontent=WALLETPASS_CONF['CERT_CONTENT'],
+            keycontent=WALLETPASS_CONF['KEY_CONTENT'],
+            wwdr_certificate=WALLETPASS_CONF['WWDRCA_PEM_CONTENT'],
+            data=b'data to be signed',
+            key_password=WALLETPASS_CONF['KEY_PASSWORD'],
         )
 
 
@@ -25,7 +23,7 @@ class BuilderTestCase(TestCase):
             "barcode": {
                 "message": "123456789",
                 "format": "PKBarcodeFormatPDF417",
-                "messageEncoding": "iso-8859-1",
+                "messageEncoding": "iso-8859-1"
             },
             "organizationName": "Organic Produce",
             "description": "Organic Produce Loyalty Card",
@@ -45,7 +43,7 @@ class BuilderTestCase(TestCase):
         self.assertEqual(builder.manifest_dict, builder2.manifest_dict)
         self.assertEqual(builder.pass_data, builder2.pass_data)
 
-        builder2.pass_data.update({"organizationName": "test"})
+        builder2.pass_data.update({"organizationName": 'test'})
         builder2.build()
         builder2.write_to_model(instance)
         instance.save()
