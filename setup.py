@@ -20,7 +20,7 @@ setup(
     install_requires=[
         'Django>=2.0',
         'cryptography>=2.4.2',
-        'apns2>=0.7.1',
+        'aioapns~=2.2',
         'pyopenssl',
         'djangorestframework>=3.8',
     ],
