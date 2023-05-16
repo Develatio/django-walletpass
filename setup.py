@@ -9,8 +9,8 @@ with open(os.path.join(here, 'README.md'), 'r', encoding='utf-8') as ffile:
 
 setup(
     name='django-walletpass',
-    python_requires='>=3.5.0',
-    version='2.0',
+    python_requires='>=3.6.0',
+    version='3.0',
     author='Develatio Technologies S.L.',
     author_email='contacto@develat.io',
     packages=find_packages(),
@@ -20,7 +20,7 @@ setup(
     install_requires=[
         'Django>=2.0',
         'cryptography>=2.4.2',
-        'apns2>=0.7.1',
+        'aioapns~=2.2',
         'pyopenssl',
         'djangorestframework>=3.8',
     ],
