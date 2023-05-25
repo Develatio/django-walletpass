@@ -23,7 +23,7 @@ setup(
         'apns2>=0.7.1',
         'pyopenssl',
         'djangorestframework>=3.8',
-        'dateutil'
+        'python-dateutil'
     ],
     description='Django .pkpass builder, server and push notifications',
     long_description=README,
