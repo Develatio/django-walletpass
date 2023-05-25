@@ -3,6 +3,18 @@ from django.test import TestCase
 from django_walletpass import crypto
 from django_walletpass.models import Pass, PassBuilder, Registration
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
+from dateutil.parser import parse
+from django.utils import timezone
+from django_walletpass.classviews import FORMAT
+
+
+class ClassViewsTestCase(TestCase):
+
+    def test_format_parse(self):
+        """ ensure dateutil reads FORMAT properly """
+        d = timezone.now()
+        s = d.strftime(FORMAT)
+        self.assertEqual(parse(s), timezone.make_naive(d).replace(microsecond=0))
 
 
 class CryptoTestCase(TestCase):
