@@ -13,7 +13,7 @@ class ClassViewsTestCase(TestCase):
         """ ensure dateutil reads FORMAT properly """
         d = timezone.now()
         s = d.strftime(FORMAT)
-        self.assertEqual(parse(s), timezone.make_naive(d))
+        self.assertEqual(parse(s), timezone.make_naive(d).replace(microsecond=0))
 
 
 class CryptoTestCase(TestCase):
