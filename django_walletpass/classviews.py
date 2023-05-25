@@ -1,18 +1,20 @@
 import json
 from calendar import timegm
-from django.http import HttpResponse
-from django.utils.http import http_date
-from django.middleware.http import ConditionalGetMiddleware
-from django.db.models import Max
-import django.dispatch
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from django_walletpass.models import Pass, Registration, Log
-from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
+
 from pytz.exceptions import NonExistentTimeError
+
+import django.dispatch
 from dateutil.parser import parse
+from django.db.models import Max
+from django.http import HttpResponse
+from django.middleware.http import ConditionalGetMiddleware
+from django.shortcuts import get_object_or_404
+from django.utils.http import http_date
+from rest_framework import status, viewsets
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django_walletpass.models import Log, Pass, Registration
+from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 # legacy constant, remove when it can be assumed no timestamps of this format are out
 # there anymore
@@ -43,11 +45,11 @@ class RegistrationsViewSet(viewsets.ViewSet):
             try:
                 # must be able to read UTC isoformat with TZ and FORMAT datetime string
                 # as well
-                dt = parse(request.GET['passesUpdatedSince'])
-                passes = passes.filter(updated_at__gt=dt)
+                date = parse(request.GET['passesUpdatedSince'])
+                passes = passes.filter(updated_at__gt=date)
             except NonExistentTimeError:
-                dt = dt.replace(hour=0, minute=0)
-                passes = passes.filter(updated_at__gt=dt)
+                date = date.replace(hour=0, minute=0)
+                passes = passes.filter(updated_at__gt=date)
 
         if passes:
             last_updated = passes.aggregate(Max('updated_at'))['updated_at__max']
@@ -124,7 +126,7 @@ class LatestVersionViewSet(viewsets.ViewSet):
 
         response['Last-Modified'] = http_date(timegm(pass_.updated_at.utctimetuple()))
 
-        def _get_response(request):
+        def _get_response(_request):
             return response
 
         return ConditionalGetMiddleware(get_response=_get_response)(request)

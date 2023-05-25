@@ -3,7 +3,7 @@ import logging
 from ssl import SSLError
 
 from aioapns import APNs, NotificationRequest
-from aioapns.exceptions import ConnectionClosed, ConnectionError
+from aioapns.exceptions import ConnectionClosed
 from django_walletpass.models import Registration
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 

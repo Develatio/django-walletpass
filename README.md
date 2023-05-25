@@ -19,8 +19,8 @@ This application implements the creation of **signed .pkpass** files and
 
 ## Requirements
 
-- Django 2.*
-- Python >= 3.5
+- Django 2.*, 3.*, 4.*
+- Python >= 3.6
 - pyca/cryptography (for .pkpass SMIME sign)
 - djangorestframework >= 3.8
 
@@ -36,10 +36,11 @@ $ pip install django-walletpass
 
 Add 'django_walletpass' to you installed apps in the settings.py file.
 
-Load the content of your cert.pem and key.pem in your settings.py file.
+Load the content of your cert.pem and key.pem in your settings.py file. This is required
+for signing the .pkpass file.
 
-```
 
+```python
 WALLETPASS = {
     'CERT_PATH': 'path/to/your/cert.pem',
     'KEY_PATH': 'path/to/your/key.pem',
@@ -51,7 +52,7 @@ WALLETPASS = {
 
 Add extra needed conf to your settings.py file.
 
-```
+```python
 WALLETPASS = {
     'CERT_PATH': 'path/to/your/cert.pem',
     'KEY_PATH': 'path/to/your/key.pem',
@@ -65,9 +66,9 @@ WALLETPASS = {
 }
 ```
 
-If you plan to use token JWT auth instead key/cert, use:
+Add token JWT config data to allow APNs push:
 
-```
+```python
 WALLETPASS = {
     'PUSH_AUTH_STRATEGY': 'token',
     'TOKEN_AUTH_KEY_PATH': 'path/to/your/key.p8',
@@ -81,7 +82,7 @@ WALLETPASS = {
 
 
 You should also import the urls into your site urls.
-```
+```python
 urlpatterns = [
     url(r'^api/passes/', include('django_walletpass.urls')),
 ```
@@ -89,14 +90,14 @@ urlpatterns = [
 django-walletpass signals certain events that might come handy in your
 application.
 
-```
-from django_walletpass.views import pass_registered, pass_unregistered
+```python
+from django_walletpass.classviews import PASS_REGISTERED, PASS_UNREGISTERED
 
-@receiver(pass_registered)
+@receiver(PASS_REGISTERED)
 def pass_registered(sender, **kwargs):
     pass
 
-@receiver(pass_unregistered)
+@receiver(PASS_UNREGISTERED)
 def pass_unregistered(sender, **kwargs):
     pass
 ```
@@ -106,7 +107,7 @@ def pass_unregistered(sender, **kwargs):
 
 Default: DEFAULT_FILE_STORAGE
 
-```
+```python
 WALLETPASS_CONF = {
     # Defaults to DEFAULT_FILE_STORAGE
     'STORAGE_CLASS': 'my.custom.storageclass,
@@ -118,7 +119,7 @@ WALLETPASS_CONF = {
 
 Default: False
 
-```
+```python
 WALLETPASS_CONF = {
     'PUSH_SANDBOX': False,
 }
@@ -126,7 +127,7 @@ WALLETPASS_CONF = {
 
 ### CA certificates path (optional)
 
-```
+```python
 WALLETPASS_CONF = {
     # Cert in pem format.
     'APPLE_WWDRCA_PEM_PATH': 'path/to/cert.pem',
@@ -139,7 +140,7 @@ files from `s3`.
 
 Default: False
 
-```
+```python
 WALLETPASS_CONF = {
     STORAGE_HTTP_REDIRECT: True,
 }
@@ -152,15 +153,15 @@ WALLETPASS_CONF = {
 
 Init empty builder
 
-```
-from django_walletpass.models import  PassBuilder
+```python
+from django_walletpass.models import PassBuilder
 builder = PassBuilder()
 ```
 
 Init builder usign a directory as base
 
-```
-from django_walletpass.models import  PassBuilder
+```python
+from django_walletpass.models import PassBuilder
 builder = PassBuilder(directory='/path/to/your.pass/')
 ```
 
@@ -168,7 +169,7 @@ If the base directory contains a `pass.json` it will be loaded, but remember
 that required attributes of `pass.json` will be overwritten during build process
 using this values:
 
-```
+```python
 {
     "passTypeIdentifier": WALLETPASS_CONF['PASS_TYPE_ID'],
     "serialNumber": secrets.token_urlsafe(20),
@@ -186,7 +187,7 @@ can manage it like a normal python dictionary.
 
 Update some attrs:
 
-```
+```python
 builder.pass_data.update({
   "barcode": {
     "message": "123456789",
@@ -200,13 +201,13 @@ builder.pass_data.update({
 
 Update one attr:
 
-```
+```python
 builder.pass_data['description'] = "Organic Produce Loyalty Card"
 ```
 
 ### Overwrite automatically generated required attribute values
 
-```
+```python
 builder.pass_data_required.update({
     "passTypeIdentifier": "customvalue",
     "serialNumber": "customvalue",
@@ -219,7 +220,7 @@ builder.pass_data_required.update({
 you can overwrite individual attributes:
 
 
-```
+```python
 builder.pass_data_required.update({
     "serialNumber": "customvalue",
 })
@@ -228,14 +229,14 @@ builder.pass_data_required['serialNumber] = 'cutomvalue'
 
 ### Add extra files
 
-```
+```python
 file_content = open('myfile', 'rb').read()
 builder.add_file('image.png', file_content)
 ```
 
 You can also add files to directories:
 
-```
+```python
 file_content = open('myfile', 'rb').read()
 builder.add_file('en.lproj/pass.strings', file_content)
 ```
@@ -245,34 +246,34 @@ builder.add_file('en.lproj/pass.strings', file_content)
 
 Build the content of .pkpass
 
-```
+```python
 pkpass_content = builder.build()
 ```
 
 Write to file:
 
-```
+```python
 pkpass_file = open('mypass.pkpass', 'rb')
 pkpass_file.write(pkpass_content)
 ```
 
 Save to new record in DB:
 
-```
+```python
 pass_instance = builder.write_to_model()
 pass_instance.save()
 ```
 
 Save to existent record in DB:
 
-```
+```python
 builder.write_to_model(pass_instance)
 pass_instance.save()
 ```
 
 ### Load .pkpass from DB and update
 
-```
+```python
 builder = pass_instance.get_pass_builder()
 builder.pass_data.update({'field': 'value'})
 builder.build()
@@ -283,6 +284,6 @@ builder.save_to_db(pass_instance)
 
 Checkout source and run from source root directory
 
-```
+```bash
 docker run -it --rm -v "$(pwd):/app" python:3.8 bash -c "cd /app; python setup.py install; ./example/manage.py test django_walletpass"
 ```
