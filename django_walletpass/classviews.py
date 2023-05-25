@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 from calendar import timegm
 from django.http import HttpResponse
 from django.utils.http import http_date
@@ -126,7 +125,7 @@ class LatestVersionViewSet(viewsets.ViewSet):
         response['Last-Modified'] = http_date(timegm(pass_.updated_at.utctimetuple()))
 
         def _get_response(request):
-             return response
+            return response
 
         return ConditionalGetMiddleware(get_response=_get_response)(request)
 
