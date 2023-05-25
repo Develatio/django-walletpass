@@ -36,7 +36,8 @@ $ pip install django-walletpass
 
 Add 'django_walletpass' to you installed apps in the settings.py file.
 
-Load the content of your cert.pem and key.pem in your settings.py file.
+Load the content of your cert.pem and key.pem in your settings.py file. This is required
+for signing the .pkpass file.
 
 ```
 
@@ -65,7 +66,7 @@ WALLETPASS = {
 }
 ```
 
-If you plan to use token JWT auth instead key/cert, use:
+Add token JWT config data to allow APNs push:
 
 ```
 WALLETPASS = {
