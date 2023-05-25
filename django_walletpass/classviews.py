@@ -13,7 +13,10 @@ from rest_framework.permissions import AllowAny
 from django_walletpass.models import Pass, Registration, Log
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 from pytz.exceptions import NonExistentTimeError
+from dateutil.parser import parse
 
+# legacy constant, remove when it can be assumed no timestamps of this format are out
+# there anymore
 FORMAT = '%Y-%m-%d %H:%M:%S'
 PASS_REGISTERED = django.dispatch.Signal()
 PASS_UNREGISTERED = django.dispatch.Signal()
@@ -39,7 +42,9 @@ class RegistrationsViewSet(viewsets.ViewSet):
 
         if 'passesUpdatedSince' in request.GET:
             try:
-                dt = datetime.strptime(request.GET['passesUpdatedSince'], FORMAT)
+                # must be able to read UTC isoformat with TZ and FORMAT datetime string
+                # as well
+                dt = parse(request.GET['passesUpdatedSince'])
                 passes = passes.filter(updated_at__gt=dt)
             except NonExistentTimeError:
                 dt = dt.replace(hour=0, minute=0)
@@ -48,7 +53,7 @@ class RegistrationsViewSet(viewsets.ViewSet):
         if passes:
             last_updated = passes.aggregate(Max('updated_at'))['updated_at__max']
             serial_numbers = [p.serial_number for p in passes.filter(updated_at=last_updated).all()]
-            response_data = {'lastUpdated': last_updated.strftime(FORMAT), 'serialNumbers': serial_numbers}
+            response_data = {'lastUpdated': last_updated.isoformat(), 'serialNumbers': serial_numbers}
             return Response(response_data)
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
