@@ -1,8 +1,10 @@
 *.py[cod]
 *.swp
+.DS_Store
 
 # C extensions
 *.so
+*.swp
 
 # Packages
 *.egg
