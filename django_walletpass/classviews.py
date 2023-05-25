@@ -10,11 +10,11 @@ from django.http import HttpResponse
 from django.middleware.http import ConditionalGetMiddleware
 from django.shortcuts import get_object_or_404
 from django.utils.http import http_date
-from django_walletpass.models import Log, Pass, Registration
-from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from django_walletpass.models import Log, Pass, Registration
+from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 # legacy constant, remove when it can be assumed no timestamps of this format are out
 # there anymore
@@ -126,7 +126,7 @@ class LatestVersionViewSet(viewsets.ViewSet):
 
         response['Last-Modified'] = http_date(timegm(pass_.updated_at.utctimetuple()))
 
-        def _get_response(request):
+        def _get_response(request):  #noqa: W0613
             return response
 
         return ConditionalGetMiddleware(get_response=_get_response)(request)
