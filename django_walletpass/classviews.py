@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 from calendar import timegm
 from django.http import HttpResponse
 from django.utils.http import http_date
@@ -12,8 +11,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django_walletpass.models import Pass, Registration, Log
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
+from pytz.exceptions import NonExistentTimeError
+from dateutil.parser import parse
 
-FORMAT = '%Y-%m-%d %H:%M:%S%z'
+# legacy constant, remove when it can be assumed no timestamps of this format are out
+# there anymore
+FORMAT = '%Y-%m-%d %H:%M:%S'
 PASS_REGISTERED = django.dispatch.Signal()
 PASS_UNREGISTERED = django.dispatch.Signal()
 
@@ -37,12 +40,19 @@ class RegistrationsViewSet(viewsets.ViewSet):
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         if 'passesUpdatedSince' in request.GET:
-            passes = passes.filter(updated_at__gt=datetime.strptime(request.GET['passesUpdatedSince'], FORMAT))
+            try:
+                # must be able to read UTC isoformat with TZ and FORMAT datetime string
+                # as well
+                dt = parse(request.GET['passesUpdatedSince'])
+                passes = passes.filter(updated_at__gt=dt)
+            except NonExistentTimeError:
+                dt = dt.replace(hour=0, minute=0)
+                passes = passes.filter(updated_at__gt=dt)
 
         if passes:
             last_updated = passes.aggregate(Max('updated_at'))['updated_at__max']
             serial_numbers = [p.serial_number for p in passes.filter(updated_at=last_updated).all()]
-            response_data = {'lastUpdated': last_updated.strftime(FORMAT), 'serialNumbers': serial_numbers}
+            response_data = {'lastUpdated': last_updated.isoformat(), 'serialNumbers': serial_numbers}
             return Response(response_data)
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
@@ -113,7 +123,11 @@ class LatestVersionViewSet(viewsets.ViewSet):
         response['Content-Disposition'] = 'attachment; filename=pass.pkpass'
 
         response['Last-Modified'] = http_date(timegm(pass_.updated_at.utctimetuple()))
-        return ConditionalGetMiddleware(get_response=response)(request)
+
+        def _get_response(request):
+            return response
+
+        return ConditionalGetMiddleware(get_response=_get_response)(request)
 
 
 # TODO: use ModelViewSet

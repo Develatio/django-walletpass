@@ -1,7 +1,20 @@
+from unittest import mock
 from django.test import TestCase
 from django_walletpass import crypto
-from django_walletpass.models import PassBuilder
+from django_walletpass.models import Pass, PassBuilder, Registration
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
+from dateutil.parser import parse
+from django.utils import timezone
+from django_walletpass.classviews import FORMAT
+
+
+class ClassViewsTestCase(TestCase):
+
+    def test_format_parse(self):
+        """ ensure dateutil reads FORMAT properly """
+        d = timezone.now()
+        s = d.strftime(FORMAT)
+        self.assertEqual(parse(s), timezone.make_naive(d).replace(microsecond=0))
 
 
 class CryptoTestCase(TestCase):
@@ -56,3 +69,16 @@ class BuilderTestCase(TestCase):
 
         self.assertNotEqual(builder.manifest_dict, builder3.manifest_dict)
         self.assertNotEqual(builder.pass_data, builder3.pass_data)
+
+
+class ModelTestCase(TestCase):
+    @mock.patch("django_walletpass.models.Pass.get_registrations")
+    @mock.patch("django_walletpass.services.APNs.send_notification")
+    def test_push_notification(self, send_notification_mock, get_registrations_mock):
+        get_registrations_mock.return_value = [Registration()]
+        pass_ = Pass(pk=1)
+        with mock.patch("django_walletpass.services.APNs.__init__", return_value=None):
+            pass_.push_notification()
+            send_notification_mock.assert_called_with(mock.ANY)
+            request = send_notification_mock.call_args_list[0][0][0]
+            self.assertEqual(request.message, {"aps": {}})

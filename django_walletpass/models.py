@@ -228,10 +228,13 @@ class Pass(models.Model):
     )
     updated_at = models.DateTimeField(auto_now=True)
 
+    def get_registrations(self):
+         return self.registrations.all()
+
     def push_notification(self):
         klass = import_string(WALLETPASS_CONF['WALLETPASS_PUSH_CLASS'])
         push_module = klass()
-        for registration in self.registrations.all():
+        for registration in self.get_registrations():
             push_module.push_notification_from_instance(registration)
 
     def new_pass_builder(self, directory=None):
