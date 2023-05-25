@@ -14,7 +14,7 @@ class ClassViewsTestCase(TestCase):
     def test_format_parse(self):
         """ ensure dateutil reads FORMAT properly """
         now = timezone.now()
-        now_string = d.strftime(FORMAT)
+        now_string = now.strftime(FORMAT)
         self.assertEqual(parse(now_string), timezone.make_naive(now).replace(microsecond=0))
 
 
