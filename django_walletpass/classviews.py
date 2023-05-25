@@ -126,7 +126,7 @@ class LatestVersionViewSet(viewsets.ViewSet):
 
         response['Last-Modified'] = http_date(timegm(pass_.updated_at.utctimetuple()))
 
-        def _get_response(request):  #noqa: W0613
+        def _get_response(request):  # noqa: W0613
             return response
 
         return ConditionalGetMiddleware(get_response=_get_response)(request)
