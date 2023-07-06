@@ -12,7 +12,11 @@ logger = logging.getLogger('walletpass.services')
 
 class PushBackend:
     def __init__(self):
-        self.loop = asyncio.get_event_loop()
+        try:
+            self.loop = asyncio.get_event_loop()
+        except RuntimeError:
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
 
     async def push_notification(self, client, token):
 
