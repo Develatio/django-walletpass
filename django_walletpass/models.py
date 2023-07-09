@@ -1,4 +1,6 @@
+import datetime
 import os
+import re
 import uuid
 import hashlib
 import json
@@ -7,6 +9,7 @@ import secrets
 import zipfile
 from glob import glob
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -313,7 +316,19 @@ class Log(models.Model):
     """
     Log message sent by a device
     """
+    created_at = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=100, null=True, blank=True)
+    task_type = models.CharField(max_length=255, null=True, blank=True)
+    pass_type_identifier = models.CharField(max_length=255, null=True, blank=True)
+    serial_number = models.CharField(max_length=255, null=True, blank=True)
+    pazz = models.ForeignKey(Pass, null=True, blank=True, on_delete=models.CASCADE, related_name='logs')
+    web_service_url = models.URLField(null=True, blank=True)
+    device_id = models.CharField(max_length=255, null=True, blank=True)
+    msg = models.TextField(null=True, blank=True)
     message = models.TextField()
 
     def __unicode__(self):
+        return self.message
+
+    def __str__(self):
         return self.message
