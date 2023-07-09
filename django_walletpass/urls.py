@@ -1,7 +1,8 @@
-from django.urls import re_path
+from django.urls import re_path, path
 from . import classviews
 
 urlpatterns = [
+    path('', classviews.web_service_root_view, name='walletpass_web_service_url'),
     re_path(
         r'^v1/devices/(?P<device_library_id>.+)/registrations/(?P<pass_type_id>.+)/(?P<serial_number>.+)$',
         classviews.RegisterPassViewSet.as_view({

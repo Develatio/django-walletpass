@@ -27,6 +27,10 @@ def get_pass(pass_type_id, serial_number):
     return get_object_or_404(Pass, pass_type_identifier=pass_type_id, serial_number=serial_number)
 
 
+def web_service_root_view(request):
+    return HttpResponse(status=200)
+
+
 class RegistrationsViewSet(viewsets.ViewSet):
     """
     Gets the Serial Numbers for Passes Associated with a Device
