@@ -285,6 +285,9 @@ class Pass(models.Model):
     def __unicode__(self):
         return self.serial_number
 
+    def __str__(self):
+        return self.serial_number
+
     class Meta:
         verbose_name_plural = "passes"
         unique_together = (
@@ -308,6 +311,9 @@ class Registration(models.Model):
     def __unicode__(self):
         return self.device_library_identifier
 
+    def __str__(self):
+        return self.device_library_identifier
+
 
 class Log(models.Model):
     """
@@ -316,4 +322,7 @@ class Log(models.Model):
     message = models.TextField()
 
     def __unicode__(self):
+        return self.message
+
+    def __str__(self):
         return self.message
