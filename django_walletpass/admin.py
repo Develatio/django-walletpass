@@ -66,9 +66,9 @@ class PassAdmin(admin.ModelAdmin):
 
 
 @admin.register(Registration)
-class PassAdmin(admin.ModelAdmin):
+class RegistrationAdmin(admin.ModelAdmin):
     list_display = ("device_library_identifier", "push_token", "pass_")
-    search_fields = ("device_library_identifier", "push_token", "pazz")
+    search_fields = ("device_library_identifier", "push_token", "pazz__serial_number")
     raw_id_fields = ("pazz",)
     readonly_fields = ("pass_",)
 
