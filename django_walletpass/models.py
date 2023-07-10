@@ -337,7 +337,7 @@ class Log(models.Model):
         return self.message
 
     def __str__(self):
-        return self.message
+        return self.created_at.strftime('%d/%m/%y %H:%M:%S')
 
     @classmethod
     def parse_log(cls, log, message):
