@@ -209,10 +209,7 @@ class PassBuilder:
         if self.builded_pass_content is None:
             raise ValueError(_("Cannot save to model: builded_pass_content is None."))
         content = WalletpassContentFile(self.builded_pass_content)
-        try:
-            instance.data.delete()
-        except FileNotFoundError:
-            pass
+        instance.data.delete()
         instance.data.save(filename, content)
 
         return instance
