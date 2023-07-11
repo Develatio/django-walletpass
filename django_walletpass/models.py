@@ -344,10 +344,12 @@ class Log(models.Model):
         pattern_register = r"\[(.*?)\]\s(.*?)\s\(for device (.*?), pass type (.*?), serial number (.*?); with web service url (.*?)\)\s(.*?): (.*$)"
         pattern_get = r"\[(.*?)\]\s(.*?)\s\(pass type (.*?), serial number (.*?), if-modified-since \(.*?\); with web service url (.*?)\) (.*?): (.*$)"
         pattern_web_service_error = r"\[(.*?)\]\s(.*?)\sfor (.*?)\s\((.*?)\):\s(.*)"
+        pattern_get_warning = r"\[(.*?)\]\s(.*?)\s\(pass type (.*?), serial number (.*?), if-modified-since \(.*?\); with web service url (.*?)\) (.*?): (.*\.)\s(.*$)"
 
         match_register = re.match(pattern_register, message)
         match_get = re.match(pattern_get, message)
         match_web_service_error = re.match(pattern_web_service_error, message)
+        match_get_warning = re.match(pattern_get_warning, message)
 
         if match_register:
             timestamp_str, task_type, device_id, pass_type_identifier, serial_number, web_service_url, status, msg = match_register.groups()
@@ -359,6 +361,10 @@ class Log(models.Model):
             serial_number = None
             device_id = None
             status = "error"
+        elif match_get_warning:
+            timestamp_str, task_type, pass_type_identifier, serial_number, web_service_url, status, msg = match_get_warning.groups()
+            device_id = None
+            status = "warning"
         else:
             log.status = 'unknown'
             log.message = message
