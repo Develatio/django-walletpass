@@ -343,7 +343,7 @@ class Log(models.Model):
     def parse_log(cls, log, message):
         pattern_register = r"\[(.*?)\]\s(.*?)\s\(for device (.*?), pass type (.*?), serial number (.*?); with web service url (.*?)\)\s(.*?): (.*$)"
         pattern_get = r"\[(.*?)\]\s(.*?)\s\(pass type (.*?), serial number (.*?), if-modified-since \(.*?\); with web service url (.*?)\) (.*?): (.*$)"
-        pattern_web_service_error = r"\[(.*?)\]\s(.*?)\sfor (.*?)\s\((.*?)\):\s(.*)"
+        pattern_web_service_error = r"\[(.*?)\]\s(.*?)\sfor (.*?)\s\((.*?)\):\s(.*$)"
         pattern_get_warning = r"\[(.*?)\]\s(.*?)\s\(pass type (.*?), serial number (.*?), if-modified-since \(.*?\); with web service url (.*?)\) (.*?): (.*\.)\s(.*$)"
 
         match_register = re.match(pattern_register, message)
