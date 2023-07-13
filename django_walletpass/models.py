@@ -304,7 +304,7 @@ class Registration(models.Model):
     Registration of a Pass on a device
     """
     device_library_identifier = models.CharField(max_length=150)
-    push_token = models.CharField(max_length=150)
+    push_token = models.CharField(max_length=255)
     pazz = models.ForeignKey(
         Pass,
         on_delete=models.CASCADE,
