@@ -235,7 +235,10 @@ class Pass(models.Model):
         klass = import_string(WALLETPASS_CONF['WALLETPASS_PUSH_CLASS'])
         push_module = klass()
         for registration in self.get_registrations():
-            push_module.push_notification_from_instance(registration)
+            response = push_module.push_notification_from_instance(registration)
+            # delete invalid registration
+            if response.status == 410:
+                registration.delete()
 
     def new_pass_builder(self, directory=None):
         builder = PassBuilder(directory)
