@@ -19,7 +19,7 @@ This application implements the creation of **signed .pkpass** files and
 
 ## Requirements
 
-- Django 2.*, 3.*, 4.*, 5
+- Django 3.2.9, 4.*, 5
 - Python >= 3.10
 - pyca/cryptography (for .pkpass SMIME sign)
 - djangorestframework >= 3.8
