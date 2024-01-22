@@ -237,7 +237,7 @@ class Pass(models.Model):
         for registration in self.get_registrations():
             response = push_module.push_notification_from_instance(registration)
             # delete invalid registration
-            if response.status == 410:
+            if response.status == '410':
                 registration.delete()
 
     def new_pass_builder(self, directory=None):
