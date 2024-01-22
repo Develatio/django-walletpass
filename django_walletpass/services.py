@@ -18,7 +18,8 @@ class PushBackend:
 
         try:
             request = NotificationRequest(device_token=token, message={"aps": {}},)
-            await client.send_notification(request)
+            response = await client.send_notification(request)
+            return response
 
         except SSLError as e:
             logger.error("django_walletpass SSLError: %s", e)
