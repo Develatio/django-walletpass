@@ -18,7 +18,7 @@ setup(
     url='http://github.com/develatio/django-walletpass/',
     license='BSD',
     install_requires=[
-        'Django>=2.0',
+        'Django>=3.2.9',
         'cryptography>=2.4.2',
         'aioapns~=2.2',
         'pyopenssl',
