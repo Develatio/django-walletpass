@@ -117,7 +117,8 @@ class PassBuilder:
         with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zip_pkpass:
             for filepath in glob(os.path.join(directory, '**'), recursive=True):
                 relative_file_path = os.path.relpath(filepath, directory)
-                zip_pkpass.write(filepath, arcname=relative_file_path)
+                if relative_file_path != '.':
+                    zip_pkpass.write(filepath, arcname=relative_file_path)
         with open(zip_file_path, 'rb') as ffile:
             return ffile.read()
 
