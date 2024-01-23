@@ -142,5 +142,6 @@ class LogViewSet(viewsets.ViewSet):
     def create(self, request):
         json_body = json.loads(request.body)
         for message in json_body['logs']:
-            Log(message=message).save()
+            log = Log(message=message)
+            Log.parse_log(log, message)
         return Response({}, status=status.HTTP_200_OK)
