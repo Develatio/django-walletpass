@@ -253,7 +253,7 @@ pkpass_content = builder.build()
 Write to file:
 
 ```python
-pkpass_file = open('mypass.pkpass', 'rb')
+pkpass_file = open('mypass.pkpass', 'wb')
 pkpass_file.write(pkpass_content)
 ```
 
