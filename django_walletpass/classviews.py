@@ -1,10 +1,8 @@
 import json
 from calendar import timegm
 
-from pytz.exceptions import NonExistentTimeError
-
 import django.dispatch
-from dateutil.parser import parse
+from dateutil.parser import parse, ParserError
 from django.db.models import Max
 from django.http import HttpResponse
 from django.middleware.http import ConditionalGetMiddleware
@@ -47,7 +45,7 @@ class RegistrationsViewSet(viewsets.ViewSet):
                 # as well
                 date = parse(request.GET['passesUpdatedSince'])
                 passes = passes.filter(updated_at__gt=date)
-            except NonExistentTimeError:
+            except (ParserError, OverflowError, TypeError):
                 date = date.replace(hour=0, minute=0)
                 passes = passes.filter(updated_at__gt=date)
 
