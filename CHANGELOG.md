@@ -1,9 +1,27 @@
 # Changelog
 
+## [4.0] - 2024-07-04
+
+### Breaking changes
+
+- minimum Python version is now 3.10
+- minimun Django version is now 3.2.9
+
+### Added
+
+- create an event loop if this app is being executed outside of one
+- add a human readable name
+- add string representation for various models
+- add support for Python 3.10 - 3.12
+
+### Changed
+
+- improve admin (search fields, filter fields, log, etc...)
+- handle invalid registrations
 
 ## [3.0] - 2023-05-25
 
-## Breaking Changes
+### Breaking Changes
 
 - deprecate cert based authentication for APNS
 
@@ -14,7 +32,7 @@
 
 ### Fixed
 
-- sumer time switch bugfix 
+- sumer time switch bugfix
 
 ## [2.0] - 2023-01-09
 
