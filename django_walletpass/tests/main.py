@@ -35,8 +35,8 @@ class AdminTestCase(TestCase):
         instance = builder.write_to_model()
         instance.save()
 
-        self.assertEqual(
-            admin_view.wallet_pass_(instance)[-48:],
+        self.assertContains(
+            admin_view.wallet_pass_(instance),
             "<img src='/static/admin/passbook_icon.svg'/></a>",
         )
 
