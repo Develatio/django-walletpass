@@ -33,10 +33,12 @@ class LogAdmin(admin.ModelAdmin):
 
     def pass_(self, obj: Log):
         if obj.pazz_id:
+            # pylint: disable=protected-access
             url = reverse(
                 f"admin:{obj.pazz._meta.app_label}_{obj.pazz._meta.model_name}_change",
                 args=[obj.pazz_id],
             )
+            # pylint: enable=protected-access
             return format_html(
                 "<a href='{url}'>{title}</a>",
                 url=url,
@@ -91,10 +93,12 @@ class RegistrationAdmin(admin.ModelAdmin):
 
     def pass_(self, obj: Registration):
         if obj.pazz_id:
+            # pylint: disable=protected-access
             url = reverse(
                 f"admin:{obj.pazz._meta.app_label}_{obj.pazz._meta.model_name}_change",
                 args=[obj.pazz_id],
             )
+            # pylint: enable=protected-access
             return format_html(
                 "<a href='{url}'>{title}</a>",
                 url=url,
