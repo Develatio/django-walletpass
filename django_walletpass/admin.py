@@ -34,8 +34,7 @@ class LogAdmin(admin.ModelAdmin):
     def pass_(self, obj: Log):
         if obj.pazz_id:
             url = reverse(
-                "admin:%s_%s_change"
-                % (obj.pazz._meta.app_label, obj.pazz._meta.model_name),
+                f"admin:{obj.pazz._meta.app_label}_{obj.pazz._meta.model_name}_change",
                 args=[obj.pazz_id],
             )
             return format_html(
@@ -69,13 +68,16 @@ class PassAdmin(admin.ModelAdmin):
     def wallet_pass_(self, obj: Pass):
         if obj.data:
             return format_html(
-                Template(
-                    "{% load static %}<a href='{url}' alt='{title}'><img src='{% static 'admin/passbook_icon.svg' %}'/></a>"
-                ).render(Context({})),
+                Template('''
+                    {% load static %}
+                    <a href='{url}' alt='{title}'>
+                        <img src='{% static 'admin/passbook_icon.svg' %}'/>
+                    </a>
+                ''').render(Context({})),
                 url=obj.data.url,
                 title=obj.data.name,
             )
-        return
+        return ""
 
     wallet_pass_.short_description = "Pass"
 
@@ -90,8 +92,7 @@ class RegistrationAdmin(admin.ModelAdmin):
     def pass_(self, obj: Registration):
         if obj.pazz_id:
             url = reverse(
-                "admin:%s_%s_change"
-                % (obj.pazz._meta.app_label, obj.pazz._meta.model_name),
+                f"admin:{obj.pazz._meta.app_label}_{obj.pazz._meta.model_name}_change",
                 args=[obj.pazz_id],
             )
             return format_html(
@@ -99,6 +100,6 @@ class RegistrationAdmin(admin.ModelAdmin):
                 url=url,
                 title=obj.pazz.serial_number,
             )
-        return
+        return ""
 
     pass_.short_description = "Pass"

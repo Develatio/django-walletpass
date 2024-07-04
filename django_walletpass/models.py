@@ -293,7 +293,7 @@ class Pass(models.Model):
         return self.serial_number
 
     def __str__(self):
-        return self.serial_number
+        return str(self.serial_number)
 
     class Meta:
         verbose_name_plural = "passes"
@@ -319,7 +319,7 @@ class Registration(models.Model):
         return self.device_library_identifier
 
     def __str__(self):
-        return self.device_library_identifier
+        return str(self.device_library_identifier)
 
 
 class Log(models.Model):
@@ -345,10 +345,12 @@ class Log(models.Model):
 
     @classmethod
     def parse_log(cls, log, message):
+        # pylint: disable=line-too-long
         pattern_register = r"\[(.*?)\]\s(.*?)\s\(for device (.*?), pass type (.*?), serial number (.*?); with web service url (.*?)\)\s(.*?): (.*$)"
         pattern_get = r"\[(.*?)\]\s(.*?)\s\(pass type (.*?), serial number (.*?), if-modified-since \(.*?\); with web service url (.*?)\) (.*?): (.*$)"
         pattern_web_service_error = r"\[(.*?)\]\s(.*?)\sfor (.*?)\s\((.*?)\):\s(.*$)"
         pattern_get_warning = r"\[(.*?)\]\s(.*?)\s\(pass type (.*?), serial number (.*?), if-modified-since \(.*?\); with web service url (.*?)\) (.*?): (.*\.)\s(.*$)"
+        # pylint: disable=line-too-long
 
         match_register = re.match(pattern_register, message)
         match_get = re.match(pattern_get, message)
