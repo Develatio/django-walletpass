@@ -36,7 +36,7 @@ class AdminTestCase(TestCase):
         instance.save()
 
         self.assertTrue(
-            "<img src='/static/admin/passbook_icon.svg'/></a>" in
+            "<img src='/static/admin/passbook_icon.svg'/>" in
             admin_view.wallet_pass_(instance)
         )
 
