@@ -18,8 +18,6 @@ from django_walletpass.models import Pass, PassBuilder, Registration, Log
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 
-
-
 class AdminTestCase(TestCase):
     def test_wallet_pass(self):
         admin_view = PassAdmin(Pass, admin.site)
@@ -230,4 +228,3 @@ class LogViewSetTestCase(APITestCase):
         expected_utc_timestamp = expected_timestamp.astimezone(timezone.utc)
 
         self.assertEqual(created_log.created_at, expected_utc_timestamp)
-
