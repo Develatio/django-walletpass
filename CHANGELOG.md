@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1] - 2024-07-15
+
+### Changed
+
+- improve handling of timestamps (thanks to GonzaloMachado)
+- fix a logical bug that would prevent registrations to get deleted (thanks to GonzaloMachado)
+
 ## [4.0] - 2024-07-04
 
 ### Breaking changes
