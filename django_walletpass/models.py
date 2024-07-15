@@ -382,7 +382,7 @@ class Log(models.Model):
         elif 'warning' in status:
             status = 'warning'
 
-        log.created_at = datetime.datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S %z")
+        log.created_at = datetime.datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S %p %z")
         log.status = status
         log.task_type = task_type
         log.device_id = device_id
