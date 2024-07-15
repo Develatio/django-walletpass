@@ -138,8 +138,7 @@ class LogViewSet(viewsets.ViewSet):
     permission_classes = (AllowAny, )
 
     def create(self, request):
-        json_body = json.loads(request.body)
-        for message in json_body['logs']:
+        for message in request.data.get('logs', []):
             log = Log(message=message)
             Log.parse_log(log, message)
         return Response({}, status=status.HTTP_200_OK)

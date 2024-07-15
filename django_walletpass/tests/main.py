@@ -1,3 +1,5 @@
+import datetime
+import json
 from unittest import mock
 
 from dateutil.parser import parse
@@ -6,14 +8,16 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
+from rest_framework.test import APITestCase, APIRequestFactory
 
 from django_walletpass import crypto
 from django_walletpass.admin import PassAdmin
-from django_walletpass.classviews import FORMAT, RegisterPassViewSet
-from django_walletpass.models import Pass, PassBuilder, Registration
+from django_walletpass.classviews import FORMAT, RegisterPassViewSet, LogViewSet
+from django_walletpass.models import Pass, PassBuilder, Registration, Log
+
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
-from rest_framework.test import APITestCase, APIRequestFactory
+
 
 
 class AdminTestCase(TestCase):
@@ -199,4 +203,31 @@ class RegisterPassViewSetTestCase(APITestCase):
         self.assertEqual(Registration.objects.count(), 1)
         self.assertTrue(Registration.objects.filter(device_library_identifier=self.device_library_id,
                                                     pazz=self.pass_instance).exists())
+
+
+class LogViewSetTestCase(APITestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+
+    def test_create_log(self):
+        url = reverse('walletpass_log', urlconf='django_walletpass.urls')
+        expected_timestamp_str = "2024-07-08 10:22:35 AM +0200"
+        data = {
+            'logs': [f"[{expected_timestamp_str}] Web service error for pass.com.develatio.devpubs.example ("
+                     "https://example.com/passes/): Response to 'What changed?' "
+                     "request included 1 serial numbers but the lastUpdated tag (2024-07-08T08:03:13.588412+00:00) "
+                     "remained the same."]
+        }
+        request = self.factory.post(url, data=json.dumps(data), content_type='application/json')
+        view = LogViewSet.as_view({'post': 'create'})
+        response = view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        created_log = Log.objects.first()
+        self.assertIsNotNone(created_log)
+        expected_timestamp = datetime.datetime.strptime(expected_timestamp_str, "%Y-%m-%d %I:%M:%S %p %z")
+        expected_utc_timestamp = expected_timestamp.astimezone(timezone.utc)
+
+        self.assertEqual(created_log.created_at, expected_utc_timestamp)
 
