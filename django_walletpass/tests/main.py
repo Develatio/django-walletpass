@@ -15,7 +15,7 @@ from rest_framework.test import APITestCase, APIRequestFactory
 from django_walletpass import crypto
 from django_walletpass.admin import PassAdmin
 from django_walletpass.classviews import FORMAT, RegisterPassViewSet, LogViewSet
-from django_walletpass.models import Pass, PassBuilder, Registration
+from django_walletpass.models import Pass, PassBuilder, Registration, Log
 from django_walletpass.services import PushBackend
 
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
