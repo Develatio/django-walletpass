@@ -147,15 +147,17 @@ class ServiceTestCase(TestCase):
         )
     )
     @mock.patch("django_walletpass.services.NotificationRequest")
-    @mock.patch("django_walletpass.services.TOKEN_UNREGISTERED")
+    @mock.patch("django_walletpass.signals.Registration")
     def test_send_notification_registration_gone(
-        self, TOKEN_UNREGISTERED_mock, request_mock
+        self, Registration_mock, request_mock
     ):
-        """when registration is reported 410 GONE by service, remove registration"""
+        """when registration is reported 410 GONE by service, APN service
+        remove registration object"""
         registration = Registration(push_token="random-token")
         response_mock = mock.Mock()
         response_mock.is_successful = False
         response_mock.status = APNS_RESPONSE_CODE.GONE
+        # fake APNs responsee
         with mock.patch(
             "aioapns.connection.APNsBaseConnectionPool.send_notification",
             return_value=response_mock,
@@ -163,7 +165,10 @@ class ServiceTestCase(TestCase):
             backend = PushBackend()
             backend.push_notification_from_instance(registration)
 
-        TOKEN_UNREGISTERED_mock.send.assert_called_with(request_mock(), response_mock)
+        # signal handler must be called
+        Registration_mock.objects.get.assert_called_with(
+            push_token=request_mock().device_token
+        )
 
 
 class SignalTestCase(TestCase):
@@ -174,13 +179,17 @@ class SignalTestCase(TestCase):
         request_mock, response_mock = mock.Mock(), mock.Mock()
         response_mock.is_successful = False
         response_mock.status = APNS_RESPONSE_CODE.GONE
-        delete_registration(request_mock, response_mock)
+        delete_registration(
+            sender='aioapns', 
+            notification_request=request_mock, 
+            notification_result=response_mock
+        )
         # Registration obj must be deleted
         registration_mock.objects.get.return_value.delete.assert_called_with()
         # Signal must be sent
         PASS_UNREGISTERED_mock.send.assert_called()
 
-        
+
 class RegisterPassViewSetTestCase(APITestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
