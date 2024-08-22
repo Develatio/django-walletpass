@@ -282,6 +282,6 @@ class LogViewSetTestCase(APITestCase):
         created_log = Log.objects.first()
         self.assertIsNotNone(created_log)
         expected_timestamp = datetime.datetime.strptime(expected_timestamp_str, "%Y-%m-%d %I:%M:%S %p %z")
-        expected_utc_timestamp = expected_timestamp.astimezone(timezone.utc)
+        expected_utc_timestamp = expected_timestamp.astimezone(datetime.timezone.utc)
 
         self.assertEqual(created_log.created_at, expected_utc_timestamp)
