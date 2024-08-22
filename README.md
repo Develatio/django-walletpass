@@ -102,6 +102,8 @@ def pass_unregistered(sender, **kwargs):
     pass
 ```
 
+Signal `TOKEN_UNREGISTERED` has a default handler. It can be disconnected and replaced.
+
 
 ### Configure storage and upload path (optional)
 

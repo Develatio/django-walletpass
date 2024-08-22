@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.2] - 2024-08-26
+
+### Added
+
+- automatic removal of Registration objects when APNs service returns 410
+
 ## [4.1] - 2024-07-15
 
 ### Changed
