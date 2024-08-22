@@ -22,8 +22,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install pylint
         python -m pip install setuptools pylint
-        python -m pip install .
-        python -m pip install "Django~=${{ matrix.django-version }}"
+        python -m pip install . "Django~=${{ matrix.django-version }}"
     - name: Analysing the code with pylint
       run: |
         pylint --rcfile=.pylintrc $(git ls-files '*.py')
