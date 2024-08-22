@@ -1,10 +1,8 @@
 import json
 from calendar import timegm
 
-from pytz.exceptions import NonExistentTimeError
-
 import django.dispatch
-from dateutil.parser import parse
+from dateutil.parser import parse, ParserError
 from django.db.models import Max
 from django.http import HttpResponse
 from django.middleware.http import ConditionalGetMiddleware
@@ -47,7 +45,7 @@ class RegistrationsViewSet(viewsets.ViewSet):
                 # as well
                 date = parse(request.GET['passesUpdatedSince'])
                 passes = passes.filter(updated_at__gt=date)
-            except NonExistentTimeError:
+            except (ParserError, OverflowError, TypeError):
                 date = date.replace(hour=0, minute=0)
                 passes = passes.filter(updated_at__gt=date)
 
@@ -99,7 +97,7 @@ class RegisterPassViewSet(viewsets.ViewSet):
             device_library_identifier=device_library_id,
             pazz=pass_,
         )
-        if registration:
+        if not registration:
             return Response({}, status=status.HTTP_200_OK)
         registration.delete()
         PASS_UNREGISTERED.send(sender=pass_)
@@ -140,7 +138,7 @@ class LogViewSet(viewsets.ViewSet):
     permission_classes = (AllowAny, )
 
     def create(self, request):
-        json_body = json.loads(request.body)
-        for message in json_body['logs']:
-            Log(message=message).save()
+        for message in request.data.get('logs', []):
+            log = Log(message=message)
+            Log.parse_log(log, message)
         return Response({}, status=status.HTTP_200_OK)
