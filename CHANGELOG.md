@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1] - 2024-08
+
+### Changed
+
+- Django 5.1 compatible with Python 3.10, 3.11, 3.12 supported and tested
+
 
 ## [3.0] - 2023-05-25
 

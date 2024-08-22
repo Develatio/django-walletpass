@@ -19,10 +19,15 @@ This application implements the creation of **signed .pkpass** files and
 
 ## Requirements
 
-- Django 2.*, 3.*, 4.*
-- Python >= 3.6
+- Django 3.2, 4.*, <=5.1
+- Python >= 3.11
 - pyca/cryptography (for .pkpass SMIME sign)
 - djangorestframework >= 3.8
+- pytz
+- aioapns~=3.3
+- pyopenssl
+- python-dateutil
+- pytz
 
 ## Getting Started
 
@@ -285,5 +290,5 @@ builder.save_to_db(pass_instance)
 Checkout source and run from source root directory
 
 ```bash
-docker run -it --rm -v "$(pwd):/app" python:3.8 bash -c "cd /app; python setup.py install; ./example/manage.py test django_walletpass"
+docker run -it --rm -v "$(pwd):/app" python:3.10 bash -c "cd /app; python setup.py install; ./example/manage.py test django_walletpass"
 ```
