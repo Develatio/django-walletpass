@@ -112,7 +112,14 @@ WALLETPASS_CONF = {
     # Defaults to DEFAULT_FILE_STORAGE
     'STORAGE_CLASS': 'my.custom.storageclass,
     'UPLOAD_TO': 'passes'
+    'STORAGE_BACKEND': 's3storage'  # Dj4.2+ only
 }
+```
+
+`STORAGE_BACKEND` is the key of the django settings `STORAGES` storage config. e.g
+
+```
+STORAGES['s3storage']['BACKEND'] = 'some.s3.backend.class'
 ```
 
 ### Push notifications sandbox (optional)

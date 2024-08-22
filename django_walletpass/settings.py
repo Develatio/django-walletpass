@@ -36,6 +36,7 @@ DEFAULTS = {
     'SERVICE_URL': None,
     'WALLETPASS_PUSH_CLASS': 'django_walletpass.services.PushBackend',
     'PUSH_SANDBOX': False,
+    'STORAGE_BACKEND': None,  # DJ4.2+ only
     'STORAGE_CLASS': STORAGE_CLASS,
     'STORAGE_HTTP_REDIRECT': False,
     'UPLOAD_TO': 'passes',
@@ -56,6 +57,8 @@ class ConfigManager(UserDict):
         if 'APPLE_WWDRCA_PEM_PATH' in new:
             with open(new['APPLE_WWDRCA_PEM_PATH'], 'rb') as ffile:
                 new['WWDRCA_PEM_CONTENT'] = ffile.read()
+        if 'STORAGE_BACKEND' in new:
+            new['STORAGE_CLASS'] = new.STORAGES[new.STORAGE_BACKEND]["BACKEND"]
 
         self.data.update(new)
 
