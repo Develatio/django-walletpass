@@ -1,5 +1,7 @@
 import os
 from collections import UserDict
+
+import django
 from django.conf import settings as django_settings
 from django.test.signals import setting_changed
 
@@ -10,6 +12,11 @@ with open(os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.pem'), 'rb') as _ffi
 
 with open(os.path.join(FULL_BASE_DIR, 'certs', 'AppleWWDRCA.cer'), 'rb') as _ffile:
     wwdrca_content = _ffile.read()
+
+if django.VERSION < (4, 2):
+    STORAGE_CLASS = django_settings.DEFAULT_FILE_STORAGE
+else:
+    STORAGE_CLASS = django_settings.STORAGES["default"]["BACKEND"]
 
 DEFAULTS = {
     'PUSH_AUTH_STRATEGY': 'legacy',  # legacy or token
@@ -29,7 +36,7 @@ DEFAULTS = {
     'SERVICE_URL': None,
     'WALLETPASS_PUSH_CLASS': 'django_walletpass.services.PushBackend',
     'PUSH_SANDBOX': False,
-    'STORAGE_CLASS': django_settings.DEFAULT_FILE_STORAGE,
+    'STORAGE_CLASS': STORAGE_CLASS,
     'STORAGE_HTTP_REDIRECT': False,
     'UPLOAD_TO': 'passes',
 }
