@@ -19,8 +19,8 @@ This application implements the creation of **signed .pkpass** files and
 
 ## Requirements
 
-- Django 2.*, 3.*, 4.*
-- Python >= 3.6
+- Django >=3.2.9
+- Python >= 3.10
 - pyca/cryptography (for .pkpass SMIME sign)
 - djangorestframework >= 3.8
 
@@ -253,7 +253,7 @@ pkpass_content = builder.build()
 Write to file:
 
 ```python
-pkpass_file = open('mypass.pkpass', 'rb')
+pkpass_file = open('mypass.pkpass', 'wb')
 pkpass_file.write(pkpass_content)
 ```
 
