@@ -4,10 +4,14 @@ from ssl import SSLError
 
 from aioapns import APNs, NotificationRequest
 from aioapns.exceptions import ConnectionClosed
+
 from django_walletpass.models import Registration
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
+from django_walletpass.signals import TOKEN_UNREGISTERED
 
-logger = logging.getLogger('walletpass.services')
+
+async def send_notification_result_signal(notification_request, notification_result):
+    await TOKEN_UNREGISTERED.send(notification_request, notification_result)
 
 
 class PushBackend:
@@ -40,6 +44,7 @@ class PushBackend:
             team_id=WALLETPASS_CONF["TEAM_ID"],
             topic=WALLETPASS_CONF["PASS_TYPE_ID"],
             use_sandbox=WALLETPASS_CONF["PUSH_SANDBOX"],
+            err_func=send_notification_result_signal,
         )
         return self.loop.run_until_complete(self.push_notification(client, token))
 

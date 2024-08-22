@@ -1,26 +1,24 @@
 import json
 from calendar import timegm
 
-from pytz.exceptions import NonExistentTimeError
-
-import django.dispatch
 from dateutil.parser import parse
 from django.db.models import Max
 from django.http import HttpResponse
 from django.middleware.http import ConditionalGetMiddleware
 from django.shortcuts import get_object_or_404
 from django.utils.http import http_date
+from pytz.exceptions import NonExistentTimeError
 from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+
 from django_walletpass.models import Log, Pass, Registration
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
+from django_walletpass.signals import PASS_REGISTERED, PASS_UNREGISTERED
 
 # legacy constant, remove when it can be assumed no timestamps of this format are out
 # there anymore
-FORMAT = '%Y-%m-%d %H:%M:%S'
-PASS_REGISTERED = django.dispatch.Signal()
-PASS_UNREGISTERED = django.dispatch.Signal()
+FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 def get_pass(pass_type_id, serial_number):

@@ -1,12 +1,16 @@
 from unittest import mock
 
+from aioapns.common import APNS_RESPONSE_CODE
 from dateutil.parser import parse
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
+
 from django_walletpass import crypto
 from django_walletpass.classviews import FORMAT
 from django_walletpass.models import Pass, PassBuilder, Registration
+from django_walletpass.services import PushBackend
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
+from django_walletpass.signals import delete_registration
 
 
 class ClassViewsTestCase(TestCase):
@@ -83,3 +87,56 @@ class ModelTestCase(TestCase):
             send_notification_mock.assert_called_with(mock.ANY)
             request = send_notification_mock.call_args_list[0][0][0]
             self.assertEqual(request.message, {"aps": {}})
+
+
+class ServiceTestCase(TestCase):
+    @mock.patch("django_walletpass.services.APNs.send_notification")
+    def test_send_notification(self, send_notification_mock):
+        registration = Registration(push_token="random-token")
+        with mock.patch("django_walletpass.services.APNs.__init__", return_value=None):
+            backend = PushBackend()
+            backend.push_notification_from_instance(registration)
+        send_notification_mock.assert_called_with(mock.ANY)
+        request = send_notification_mock.call_args_list[0][0][0]
+        self.assertEqual(request.device_token, registration.push_token)
+
+    @override_settings(
+        WALLETPASS=dict(
+            TOKEN_AUTH_KEY_PATH="./example/certs/key.pem",
+            TOKEN_AUTH_KEY_ID="y",
+            TEAM_ID="z",
+        )
+    )
+    @mock.patch("django_walletpass.services.NotificationRequest")
+    @mock.patch("django_walletpass.services.TOKEN_UNREGISTERED")
+    def test_send_notification_registration_gone(
+        self, TOKEN_UNREGISTERED_mock, request_mock
+    ):
+        """when registration is reported 410 GONE by service, remove registration"""
+        registration = Registration(push_token="random-token")
+        response_mock = mock.Mock()
+        response_mock.is_successful = False
+        response_mock.status = APNS_RESPONSE_CODE.GONE
+        with mock.patch(
+            "aioapns.connection.APNsBaseConnectionPool.send_notification",
+            return_value=response_mock,
+        ):
+            backend = PushBackend()
+            backend.push_notification_from_instance(registration)
+
+        TOKEN_UNREGISTERED_mock.send.assert_called_with(request_mock(), response_mock)
+
+
+class SignalTestCase(TestCase):
+    @mock.patch("django_walletpass.signals.Registration")
+    @mock.patch("django_walletpass.signals.PASS_UNREGISTERED")
+    def test_delete_registration(self, PASS_UNREGISTERED_mock, registration_mock):
+        """signal handler must delete registration and trigger signal"""
+        request_mock, response_mock = mock.Mock(), mock.Mock()
+        response_mock.is_successful = False
+        response_mock.status = APNS_RESPONSE_CODE.GONE
+        delete_registration(request_mock, response_mock)
+        # Registration obj must be deleted
+        registration_mock.objects.get.return_value.delete.assert_called_with()
+        # Signal must be sent
+        PASS_UNREGISTERED_mock.send.assert_called()
