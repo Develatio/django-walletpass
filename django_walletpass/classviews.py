@@ -7,7 +7,6 @@ from django.http import HttpResponse
 from django.middleware.http import ConditionalGetMiddleware
 from django.shortcuts import get_object_or_404
 from django.utils.http import http_date
-from pytz.exceptions import NonExistentTimeError
 from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response

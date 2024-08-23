@@ -24,7 +24,6 @@ setup(
         'pyopenssl',
         'djangorestframework>=3.8',
         'python-dateutil',
-        'pytz'
     ],
     description='Django .pkpass builder, server and push notifications',
     long_description=README,
