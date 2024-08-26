@@ -16,9 +16,9 @@ def send_push_notification(instance=None, **_kwargs):
 
 @receiver(TOKEN_UNREGISTERED)
 def delete_registration(
-    sender, 
-    notification_request=None, 
-    notification_result=None, 
+    sender,
+    notification_request=None,
+    notification_result=None,
     **kwargs
 ):
     if notification_result.status == APNS_RESPONSE_CODE.GONE:
