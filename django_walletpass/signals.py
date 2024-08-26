@@ -16,11 +16,11 @@ def send_push_notification(instance=None, **_kwargs):
 
 @receiver(TOKEN_UNREGISTERED)
 def delete_registration(
-    sender,
+    sender,  # noqa: W0613
     notification_request=None,
     notification_result=None,
-    **kwargs
-):  # noqa: W0613
+    **kwargs  # noqa: W0613
+):  
     if notification_result.status == APNS_RESPONSE_CODE.GONE:
         registration = Registration.objects.get(
             push_token=notification_request.device_token
