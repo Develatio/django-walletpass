@@ -174,7 +174,7 @@ class ServiceTestCase(TestCase):
 class SignalTestCase(TestCase):
     @mock.patch("django_walletpass.signals.Registration")
     @mock.patch("django_walletpass.signals.PASS_UNREGISTERED")
-    def test_delete_registration(self, PASS_UNREGISTERED_mock, registration_mock):
+    def test_delete_registration(self, pass_unregistered_mock, registration_mock):
         """signal handler must delete registration and trigger signal"""
         request_mock, response_mock = mock.Mock(), mock.Mock()
         response_mock.is_successful = False
@@ -187,7 +187,7 @@ class SignalTestCase(TestCase):
         # Registration obj must be deleted
         registration_mock.objects.get.return_value.delete.assert_called_with()
         # Signal must be sent
-        PASS_UNREGISTERED_mock.send.assert_called()
+        pass_unregistered_mock.send.assert_called()
 
 
 class RegisterPassViewSetTestCase(APITestCase):
