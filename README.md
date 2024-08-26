@@ -1,5 +1,5 @@
 ![PyPI](https://img.shields.io/pypi/v/django-walletpass.svg)
-![t](https://img.shields.io/badge/status-beta-red.svg)
+![t](https://img.shields.io/badge/status-stable-green.svg)
 
 
 # django-walletpass
