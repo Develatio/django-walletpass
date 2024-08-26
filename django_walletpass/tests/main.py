@@ -140,16 +140,16 @@ class ServiceTestCase(TestCase):
         self.assertEqual(request.device_token, registration.push_token)
 
     @override_settings(
-        WALLETPASS=dict(
-            TOKEN_AUTH_KEY_PATH="./example/certs/key.pem",
-            TOKEN_AUTH_KEY_ID="y",
-            TEAM_ID="z",
-        )
+        WALLETPASS={
+            "TOKEN_AUTH_KEY_PATH": "./example/certs/key.pem",
+            "TOKEN_AUTH_KEY_ID": "y",
+            "TEAM_ID": "z",
+        }
     )
     @mock.patch("django_walletpass.services.NotificationRequest")
     @mock.patch("django_walletpass.signals.Registration")
     def test_send_notification_registration_gone(
-        self, Registration_mock, request_mock
+        self, registration_mock, request_mock
     ):
         """when registration is reported 410 GONE by service, APN service
         remove registration object"""
@@ -166,7 +166,7 @@ class ServiceTestCase(TestCase):
             backend.push_notification_from_instance(registration)
 
         # signal handler must be called
-        Registration_mock.objects.get.assert_called_with(
+        registration_mock.objects.get.assert_called_with(
             push_token=request_mock().device_token
         )
 
@@ -174,20 +174,20 @@ class ServiceTestCase(TestCase):
 class SignalTestCase(TestCase):
     @mock.patch("django_walletpass.signals.Registration")
     @mock.patch("django_walletpass.signals.PASS_UNREGISTERED")
-    def test_delete_registration(self, PASS_UNREGISTERED_mock, registration_mock):
+    def test_delete_registration(self, pass_unregistered_mock, registration_mock):
         """signal handler must delete registration and trigger signal"""
         request_mock, response_mock = mock.Mock(), mock.Mock()
         response_mock.is_successful = False
         response_mock.status = APNS_RESPONSE_CODE.GONE
         delete_registration(
-            sender='aioapns', 
-            notification_request=request_mock, 
+            sender='aioapns',
+            notification_request=request_mock,
             notification_result=response_mock
         )
         # Registration obj must be deleted
         registration_mock.objects.get.return_value.delete.assert_called_with()
         # Signal must be sent
-        PASS_UNREGISTERED_mock.send.assert_called()
+        pass_unregistered_mock.send.assert_called()
 
 
 class RegisterPassViewSetTestCase(APITestCase):

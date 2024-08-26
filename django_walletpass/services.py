@@ -16,8 +16,8 @@ logger = logging.getLogger('walletpass.services')
 @sync_to_async
 def send_notification_result_signal(notification_request, notification_result):
     TOKEN_UNREGISTERED.send(
-        sender='aioapns', 
-        notification_request=notification_request, 
+        sender='aioapns',
+        notification_request=notification_request,
         notification_result=notification_result
     )
 
