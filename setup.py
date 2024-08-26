@@ -10,7 +10,7 @@ with open(os.path.join(here, 'README.md'), 'r', encoding='utf-8') as ffile:
 setup(
     name='django-walletpass',
     python_requires='>=3.10.0',
-    version='4.1',
+    version='4.2',
     author='Develatio Technologies S.L.',
     author_email='contacto@develat.io',
     packages=find_packages(),
@@ -20,10 +20,10 @@ setup(
     install_requires=[
         'Django>=3.2.9',
         'cryptography>=2.4.2',
-        'aioapns~=2.2',
+        'aioapns~=3.3',
         'pyopenssl',
         'djangorestframework>=3.8',
-        'python-dateutil'
+        'python-dateutil',
     ],
     description='Django .pkpass builder, server and push notifications',
     long_description=README,
