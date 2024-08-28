@@ -1,4 +1,3 @@
-import datetime
 import os
 import re
 import uuid
@@ -8,6 +7,7 @@ import tempfile
 import secrets
 import zipfile
 from glob import glob
+from dateutil.parser import parse as datetime_parse
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.module_loading import import_string
@@ -382,7 +382,7 @@ class Log(models.Model):
         elif 'warning' in status:
             status = 'warning'
 
-        log.created_at = datetime.datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S %p %z")
+        log.created_at = datetime_parse(timestamp_str)
         log.status = status
         log.task_type = task_type
         log.device_id = device_id

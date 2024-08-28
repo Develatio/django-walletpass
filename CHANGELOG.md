@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.2.1] - 2024-08-28
+
+### Changed
+
+- stable datetime str conversion
+
 ## [4.2] - 2024-08-26
 
 ### Added
