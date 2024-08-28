@@ -1,4 +1,3 @@
-import datetime
 import os
 import re
 import uuid
@@ -8,6 +7,7 @@ import tempfile
 import secrets
 import zipfile
 from glob import glob
+from dateutil.parser import parse as datetime_parse
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.module_loading import import_string
@@ -17,7 +17,6 @@ from django_walletpass import crypto
 from django_walletpass.storage import WalletPassStorage
 from django_walletpass.files import WalletpassContentFile
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
-from dateutil.parser import parse as datetime_parse
 
 
 class PassBuilder:
