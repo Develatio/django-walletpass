@@ -17,6 +17,7 @@ from django_walletpass import crypto
 from django_walletpass.storage import WalletPassStorage
 from django_walletpass.files import WalletpassContentFile
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
+from dateutil.parser import parse as datetime_parse
 
 
 class PassBuilder:
@@ -382,7 +383,7 @@ class Log(models.Model):
         elif 'warning' in status:
             status = 'warning'
 
-        log.created_at = datetime.datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S %p %z")
+        log.created_at = datetime_parse(timestamp_str)
         log.status = status
         log.task_type = task_type
         log.device_id = device_id
