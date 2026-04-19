@@ -182,6 +182,46 @@ class PassBuilder:
             self.builded_pass_content = self._zip_all(tmp_pass_dir)
         return self.builded_pass_content
 
+    @classmethod
+    def read_from_model(cls, instance):
+        """Create a new PassBuilder instances and reads into it the content of a
+        Pass model.
+        """
+        builder = cls()
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.mkdir(os.path.join(tmpdirname, 'data.pass'))
+            tmp_pass_dir = os.path.join(tmpdirname, 'data.pass')
+            # Put zip file into tmp dir
+            zip_path = os.path.join(tmpdirname, 'walletcard.pkpass')
+            with open(zip_path, 'wb') as ffile:
+                instance.data.seek(0)
+                ffile.write(instance.data.read())
+
+            # Extract zip file to tmp dir
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                zip_ref.extractall(tmp_pass_dir)
+            # Populate builder with zip content
+            for filepath in glob(os.path.join(tmp_pass_dir, '**'), recursive=True):
+                filename = os.path.basename(filepath)
+                relative_file_path = os.path.relpath(filepath, tmp_pass_dir)
+                if filename == 'pass.json':
+                    builder.load_pass_json_file(tmp_pass_dir)
+                    continue
+                if relative_file_path in ['signature', 'manifest.json', '.', '..']:
+                    continue
+                if not os.path.isfile(filepath):
+                    continue
+                with open(filepath, 'rb') as ffile:
+                    builder.add_file(relative_file_path, ffile.read())
+        # Load of these fields due to that those fields are ignored
+        # on pass.json loading
+        builder.pass_data_required.update({
+            "passTypeIdentifier": instance.pass_type_identifier,
+            "serialNumber": instance.serial_number,
+            "authenticationToken": instance.authentication_token,
+        })
+        return builder
+
     def write_to_model(self, instance=None):
         """Saves the content of builded and zipped pass into Pass model.
 

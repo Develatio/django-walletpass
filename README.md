@@ -283,7 +283,7 @@ pass_instance.save()
 ### Load .pkpass from DB and update
 
 ```python
-builder = pass_instance.get_pass_builder()
+builder = PassBuilder.read_from_model(pass_instance)
 builder.pass_data.update({'field': 'value'})
 builder.build()
 builder.save_to_db(pass_instance)

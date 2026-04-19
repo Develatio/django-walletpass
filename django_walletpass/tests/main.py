@@ -93,7 +93,7 @@ class BuilderTestCase(TestCase):
         instance.save()
         self.assertIsNotNone(instance.pk)
 
-        builder2 = instance.get_pass_builder()
+        builder2 = PassBuilder.read_from_model(instance)
         builder2.build()
         self.assertEqual(builder.manifest_dict, builder2.manifest_dict)
         self.assertEqual(builder.pass_data, builder2.pass_data)
@@ -103,7 +103,7 @@ class BuilderTestCase(TestCase):
         builder2.write_to_model(instance)
         instance.save()
 
-        builder3 = instance.get_pass_builder()
+        builder3 = PassBuilder.read_from_model(instance)
         builder3.build()
 
         self.assertEqual(builder2.manifest_dict, builder3.manifest_dict)

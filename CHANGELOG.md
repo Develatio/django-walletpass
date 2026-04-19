@@ -5,6 +5,8 @@
 ### Breaking changes
 
 - `PassBuilder` has been moved from `.models` to `.service`
+- The method `new_pass_builder` in the model `Pass` has been removed
+- The method `get_pass_builder` in the model `Pass` has been removed. Switch to `PassBuilder.read_from_model`
 
 ### Changed
 
