@@ -8,13 +8,13 @@ from asgiref.sync import sync_to_async
 
 from django_walletpass.models import Registration
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
+from django_walletpass.signals import TOKEN_UNREGISTERED
 
 logger = logging.getLogger('walletpass.services')
 
 
 @sync_to_async
 def send_notification_result_signal(notification_request, notification_result):
-    from django_walletpass.signals import TOKEN_UNREGISTERED
     TOKEN_UNREGISTERED.send(
         sender='aioapns',
         notification_request=notification_request,

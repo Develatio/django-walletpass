@@ -76,8 +76,8 @@ class Log(models.Model):
         log.message = message
 
         if serial_number:
+            Pass = apps.get_model('django_walletpass', 'Pass')  # pylint: disable=invalid-name
             try:
-                Pass = apps.get_model('django_walletpass', 'Pass')
                 pazz = Pass.objects.get(serial_number=serial_number)
                 log.pazz = pazz
             except Pass.DoesNotExist:
