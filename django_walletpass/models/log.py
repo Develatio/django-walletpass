@@ -4,8 +4,6 @@ from dateutil.parser import parse as datetime_parse
 from django.db import models
 from django.utils import timezone
 
-from django_walletpass.models import Pass
-
 # pylint: disable=line-too-long
 PATTERN_REGISTER = r"\[(.*?)\]\s(.*?)\s\(for device (.*?), pass type (.*?), serial number (.*?); with web service url (.*?)\)\s(.*?): (.*$)"
 PATTERN_GET = r"\[(.*?)\]\s(.*?)\s\(pass type (.*?), serial number (.*?), if-modified-since \(.*?\); with web service url (.*?)\) (.*?): (.*$)"
@@ -36,6 +34,8 @@ class Log(models.Model):
 
     @classmethod
     def parse_log(cls, log, message):
+        from django_walletpass.models import Pass
+
         match_register = re.match(PATTERN_REGISTER, message)
         match_get = re.match(PATTERN_GET, message)
         match_web_service_error = re.match(PATTERN_WEB_SERVICE_ERROR, message)
