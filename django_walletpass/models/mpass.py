@@ -1,5 +1,4 @@
 import os
-import re
 import tempfile
 import zipfile
 from glob import glob
