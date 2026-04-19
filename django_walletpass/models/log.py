@@ -1,6 +1,7 @@
 import re
 
 from dateutil.parser import parse as datetime_parse
+from django.apps import apps
 from django.db import models
 from django.utils import timezone
 
@@ -34,8 +35,6 @@ class Log(models.Model):
 
     @classmethod
     def parse_log(cls, log, message):
-        from django_walletpass.models import Pass
-
         match_register = re.match(PATTERN_REGISTER, message)
         match_get = re.match(PATTERN_GET, message)
         match_web_service_error = re.match(PATTERN_WEB_SERVICE_ERROR, message)
@@ -78,6 +77,7 @@ class Log(models.Model):
 
         if serial_number:
             try:
+                Pass = apps.get_model('django_walletpass', 'Pass')
                 pazz = Pass.objects.get(serial_number=serial_number)
                 log.pazz = pazz
             except Pass.DoesNotExist:
