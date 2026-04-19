@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_walletpass import crypto
 from django_walletpass.files import WalletpassContentFile
+from django_walletpass.models import Pass
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 
@@ -211,7 +212,5 @@ class PassBuilder:
 
         return instance
 
-    def add_file(self, path, content):
-        self.extra_files[path] = content
     def add_file(self, path, content):
         self.extra_files[path] = content

@@ -84,5 +84,3 @@ class Log(models.Model):
                 pass
 
         log.save()
-
-        log.save()
