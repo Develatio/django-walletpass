@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.0.1] - 2026-04-19
+
+### Fixed
+
+- Different PassBuilder instances were sharing the same data (#46)
+
 ## [5.0.0] - 2026-04-19
 
 ### Breaking changes
