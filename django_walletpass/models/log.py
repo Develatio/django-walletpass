@@ -4,6 +4,14 @@ from dateutil.parser import parse as datetime_parse
 from django.db import models
 from django.utils import timezone
 
+from django_walletpass.models import Pass
+
+# pylint: disable=line-too-long
+PATTERN_REGISTER = r"\[(.*?)\]\s(.*?)\s\(for device (.*?), pass type (.*?), serial number (.*?); with web service url (.*?)\)\s(.*?): (.*$)"
+PATTERN_GET = r"\[(.*?)\]\s(.*?)\s\(pass type (.*?), serial number (.*?), if-modified-since \(.*?\); with web service url (.*?)\) (.*?): (.*$)"
+PATTERN_WEB_SERVICE_ERROR = r"\[(.*?)\]\s(.*?)\sfor (.*?)\s\((.*?)\):\s(.*$)"
+PATTERN_GET_WARNING = r"\[(.*?)\]\s(.*?)\s\(pass type (.*?), serial number (.*?), if-modified-since \(.*?\); with web service url (.*?)\) (.*?): (.*\.)\s(.*$)"
+# pylint: disable=line-too-long
 
 class Log(models.Model):
     """
@@ -28,17 +36,10 @@ class Log(models.Model):
 
     @classmethod
     def parse_log(cls, log, message):
-        # pylint: disable=line-too-long
-        pattern_register = r"\[(.*?)\]\s(.*?)\s\(for device (.*?), pass type (.*?), serial number (.*?); with web service url (.*?)\)\s(.*?): (.*$)"
-        pattern_get = r"\[(.*?)\]\s(.*?)\s\(pass type (.*?), serial number (.*?), if-modified-since \(.*?\); with web service url (.*?)\) (.*?): (.*$)"
-        pattern_web_service_error = r"\[(.*?)\]\s(.*?)\sfor (.*?)\s\((.*?)\):\s(.*$)"
-        pattern_get_warning = r"\[(.*?)\]\s(.*?)\s\(pass type (.*?), serial number (.*?), if-modified-since \(.*?\); with web service url (.*?)\) (.*?): (.*\.)\s(.*$)"
-        # pylint: disable=line-too-long
-
-        match_register = re.match(pattern_register, message)
-        match_get = re.match(pattern_get, message)
-        match_web_service_error = re.match(pattern_web_service_error, message)
-        match_get_warning = re.match(pattern_get_warning, message)
+        match_register = re.match(PATTERN_REGISTER, message)
+        match_get = re.match(PATTERN_GET, message)
+        match_web_service_error = re.match(PATTERN_WEB_SERVICE_ERROR, message)
+        match_get_warning = re.match(PATTERN_GET_WARNING, message)
 
         if match_register:
             timestamp_str, task_type, device_id, pass_type_identifier, serial_number, web_service_url, status, msg = match_register.groups()
