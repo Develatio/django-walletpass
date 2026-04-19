@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.3.0] - 2026-04-19
+
+### Changed
+
+- change `push_token` in `Registration` model from `CharField` to `TextField`
+
 ## [4.2.1] - 2024-08-28
 
 ### Changed

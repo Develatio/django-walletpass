@@ -31,7 +31,6 @@ class PushBackend:
             asyncio.set_event_loop(self.loop)
 
     async def push_notification(self, client, token):
-
         try:
             request = NotificationRequest(device_token=token, message={"aps": {}},)
             response = await client.send_notification(request)
