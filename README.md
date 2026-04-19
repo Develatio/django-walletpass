@@ -163,14 +163,14 @@ WALLETPASS_CONF = {
 Init empty builder
 
 ```python
-from django_walletpass.models import PassBuilder
+from django_walletpass.services import PassBuilder
 builder = PassBuilder()
 ```
 
 Init builder usign a directory as base
 
 ```python
-from django_walletpass.models import PassBuilder
+from django_walletpass.services import PassBuilder
 builder = PassBuilder(directory='/path/to/your.pass/')
 ```
 

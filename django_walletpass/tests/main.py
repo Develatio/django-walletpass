@@ -4,20 +4,18 @@ from unittest import mock
 
 from aioapns.common import APNS_RESPONSE_CODE
 from dateutil.parser import parse
-
 from django.contrib import admin
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.test import APITestCase, APIRequestFactory
+from rest_framework.test import APIRequestFactory, APITestCase
 
 from django_walletpass import crypto
 from django_walletpass.admin import PassAdmin
-from django_walletpass.classviews import FORMAT, RegisterPassViewSet, LogViewSet
-from django_walletpass.models import Pass, PassBuilder, Registration, Log
-from django_walletpass.services import PushBackend
-
+from django_walletpass.classviews import FORMAT, LogViewSet, RegisterPassViewSet
+from django_walletpass.models import Log, Pass, Registration
+from django_walletpass.services import PassBuilder, PushBackend
 from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 from django_walletpass.signals import delete_registration
 

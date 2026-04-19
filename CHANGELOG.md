@@ -1,6 +1,10 @@
 # Changelog
 
-## [4.3.0] - 2026-04-19
+## [5.0.0] - 2026-04-19
+
+### Breaking changes
+
+- `PassBuilder` has been moved from `.models` to `.service`
 
 ### Changed
 
