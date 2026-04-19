@@ -17,23 +17,24 @@ from django_walletpass.settings import dwpconfig as WALLETPASS_CONF
 
 
 class PassBuilder:
-    pass_data = {}
-    pass_data_required = {
-        "passTypeIdentifier": WALLETPASS_CONF['PASS_TYPE_ID'],
-        "serialNumber": None,
-        "teamIdentifier": WALLETPASS_CONF['TEAM_ID'],
-        "webServiceURL": WALLETPASS_CONF['SERVICE_URL'],
-        "authenticationToken": None,
-    }
-    directory = None
-    extra_files = {}
-    manifest_dict = {}
-    builded_pass_content = None
-
     def __init__(self, directory=None):
+        self.pass_data = {}
+        self.pass_data_required = {
+            "passTypeIdentifier": WALLETPASS_CONF['PASS_TYPE_ID'],
+            "serialNumber": None,
+            "teamIdentifier": WALLETPASS_CONF['TEAM_ID'],
+            "webServiceURL": WALLETPASS_CONF['SERVICE_URL'],
+            "authenticationToken": None,
+        }
+        self.directory = None
+        self.extra_files = {}
+        self.manifest_dict = {}
+        self.builded_pass_content = None
         self.directory = directory
+
         if directory is not None:
             self._load_pass_json_file_if_exists(directory)
+
         self.pass_data_required.update({
             "serialNumber": secrets.token_urlsafe(20),
             "authenticationToken": crypto.gen_random_token(),
