@@ -115,11 +115,11 @@ class BuilderTestCase(TestCase):
 
 class ModelTestCase(TestCase):
     @mock.patch("django_walletpass.models.Pass.get_registrations")
-    @mock.patch("django_walletpass.services.APNs.send_notification")
+    @mock.patch("django_walletpass.services.push_backend.APNs.send_notification")
     def test_push_notification(self, send_notification_mock, get_registrations_mock):
         get_registrations_mock.return_value = [Registration()]
         pass_ = Pass(pk=1)
-        with mock.patch("django_walletpass.services.APNs.__init__", return_value=None):
+        with mock.patch("django_walletpass.services.push_backend.APNs.__init__", return_value=None):
             pass_.push_notification()
             send_notification_mock.assert_called_with(mock.ANY)
             request = send_notification_mock.call_args_list[0][0][0]
@@ -127,10 +127,10 @@ class ModelTestCase(TestCase):
 
 
 class ServiceTestCase(TestCase):
-    @mock.patch("django_walletpass.services.APNs.send_notification")
+    @mock.patch("django_walletpass.services.push_backend.APNs.send_notification")
     def test_send_notification(self, send_notification_mock):
         registration = Registration(push_token="random-token")
-        with mock.patch("django_walletpass.services.APNs.__init__", return_value=None):
+        with mock.patch("django_walletpass.services.push_backend.APNs.__init__", return_value=None):
             backend = PushBackend()
             backend.push_notification_from_instance(registration)
         send_notification_mock.assert_called_with(mock.ANY)
@@ -144,7 +144,7 @@ class ServiceTestCase(TestCase):
             "TEAM_ID": "z",
         }
     )
-    @mock.patch("django_walletpass.services.NotificationRequest")
+    @mock.patch("django_walletpass.services.push_backend.NotificationRequest")
     @mock.patch("django_walletpass.signals.Registration")
     def test_send_notification_registration_gone(
         self, registration_mock, request_mock
